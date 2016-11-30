@@ -8,15 +8,15 @@ from focus import auth, parser
 
 app = Flask(__name__)
 api_url = '/api/v1/'
+tld = 'https://focus.asdnh.org/'
 urls = {
-    'tld': 'https://focus.asdnh.org/',
-    'login': 'https://focus.asdnh.org/focus/index.php',
-    'portal': 'https://focus.asdnh.org/focus/Modules.php?modname=misc/Portal.php',
-    'course_pre': 'https://focus.asdnh.org/focus/Modules.php?modname=Grades/StudentGBGrades.php?course_period_id=',
-    'schedule': 'https://focus.asdnh.org/focus/Modules.php?modname=Scheduling/Schedule.php',
-    'calendar_pre': 'https://focus.asdnh.org/focus/Modules.php?modname=School_Setup/Calendar.php&',
-    'demographic': 'https://focus.asdnh.org/focus/Modules.php?modname=Students/Student.php',
-    'absences': 'https://focus.asdnh.org/focus/Modules.php?modname=Attendance/StudentSummary.php',
+    'login': tld + 'focus/index.php',
+    'portal': tld + 'focus/Modules.php?modname=misc/Portal.php',
+    'course_pre': tld + 'focus/Modules.php?modname=Grades/StudentGBGrades.php?course_period_id=',
+    'schedule': tld + 'focus/Modules.php?modname=Scheduling/Schedule.php',
+    'calendar_pre': tld + 'focus/Modules.php?modname=School_Setup/Calendar.php&',
+    'demographic': tld + 'focus/Modules.php?modname=Students/Student.php',
+    'absences': tld + 'focus/Modules.php?modname=Attendance/StudentSummary.php',
 }
 
 @app.errorhandler(400)
