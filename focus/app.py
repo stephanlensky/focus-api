@@ -45,8 +45,8 @@ def login():
     if not request.json or not 'username' in request.json or not 'password' in request.json:
         abort(400)
     r = auth.login(request.json.get('username'), request.json.get('password'))
-    if r[0]:
-        return jsonify( { 'PHPSESSID':r[1] } )
+    if r:
+        return jsonify( { 'PHPSESSID':r } )
     else:
         abort(401)
 

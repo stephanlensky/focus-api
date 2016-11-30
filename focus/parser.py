@@ -115,7 +115,7 @@ def parse_course(course):
 
         categories = []
         tr = category_table.find_all('tr')
-        if len(tr) != 0:
+        if tr:
             names = []
             td = tr[0].find_all('td')
             td.pop()
@@ -152,7 +152,7 @@ def parse_course(course):
     assignments = []
     count = 1
     tr = course.find('tr', id='LOy_row' + str(count))
-    while tr is not None:
+    while tr:
         td = tr.find_all('td', {'class': 'LO_field'})
         assignment = {}
         name = td[0].text

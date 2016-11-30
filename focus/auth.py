@@ -13,10 +13,9 @@ def login(u, p):
     r = requests.post(login_url, data)
     if r.json()['success']:
         student_sessions[r.cookies['PHPSESSID']] = u
-        return True, r.cookies['PHPSESSID']
+        return r.cookies['PHPSESSID']
     else:
-        return False,
-
+        return ()
 
 def is_valid_session(sess_id):
     if sess_id in student_sessions:
