@@ -29,14 +29,16 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 - Attendance chart
 - Preferences
 
-## Dependencies
+## Running the server
+
+### Dependencies
 
 - [Flask](https://pypi.python.org/pypi/Flask)
 - [beautifulsoup4](https://pypi.python.org/pypi/beautifulsoup4)
 - [requests](https://pypi.python.org/pypi/requests)
 - [python-dateutil](https://pypi.python.org/pypi/python-dateutil)
 
-## Running the server
+### Installation
 
 Before doing anything else, make sure you have all of the dependencies installed:
 
