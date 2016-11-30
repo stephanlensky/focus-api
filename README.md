@@ -2,7 +2,7 @@
 
 A simple RESTful Flask server to retrieve and parse pages from the Focus for Schools Student Information System. Although it was created for the [Academy for Science and Design](http://www.asdnh.org/), this service should work for any school running the Focus SIS. Simply change all of the URLs `focus/app.py` to the equivalent ones for your school. The project is currently still in early development, so there are a bunch of bugs and the module does not yet have an installer.
 
-#### Complete
+### Complete
 
 - Basic changing semester/year (marking period)
 - Courses
@@ -10,12 +10,12 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 - Demographic
 - Schedule
 
-#### In Progress
+### In Progress
 
 - Authentication (doesn't account for session timing out)
 - Portal (missing alerts)
 
-#### Planned
+### Planned
 
 - Descriptions for events from calendar
 - Enhanced marking period support (choose redirect page)
@@ -24,7 +24,7 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 - Referrals
 - Final grades and GPA
 
-#### Unplanned
+### Unplanned
 
 - Attendance chart
 - Preferences
