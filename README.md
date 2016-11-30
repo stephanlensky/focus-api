@@ -143,7 +143,7 @@ Returns a JSON object in the following format with information from the portal p
 
 **Accepts: GET**
 
-Returns information about the course ID in the URL. Make sure that you are in the same marking period as the course ran, or this will not work. Note that not all fields are applicable for all courses and assignments. For example, some courses do not use categories or have any assignments. Some assignments may not be graded, or may be a pass/fail grade. This example has both categories and assignments for your convenience.
+Returns information about the course ID in the URL. Make sure that you are in the same marking period as the course ran, or this will not return any information about the course. Note that not all fields are applicable for all courses and assignments. For example, some courses do not use categories or have any assignments. Some assignments may not be graded, or may be a pass/fail grade. This example has both categories and assignments for your convenience.
 
 ```javascript
 {
@@ -288,5 +288,6 @@ Returns basic information about the student account and the student's most recen
   "photo_auth": true, 
   "picture": "/9j/4AAQSkZJRgA...7i0zUDmcD3qSH/VLQB//Z", 
   "username": "stephan.lensky"
+  // marking period information
 }
 ```

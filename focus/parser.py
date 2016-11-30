@@ -83,9 +83,10 @@ def parse_portal(portal):
             continue
         event = {}
         event['description'] = a.text[a.text.find(": ") + 2:]
-        event['year'] = int(c[0:5])
-        event['month'] = int(c[5:7])
-        event['day'] = int(c[7:9])
+        year = int(c[0:5])
+        month = int(c[5:7])
+        day = int(c[7:9])
+        event['date'] = date(year, month, day).isoformat()
         events.append(event)
 
     return __add_marking_periods_to__({'events': events, 'courses': courses}, __get_marking_periods__(portal))
@@ -96,14 +97,16 @@ def parse_course(course):
     course = BeautifulSoup(course, 'html.parser')
     course_info = {}
 
-    metadata = course.find('img', {'src':'modules/Grades/Grades.png'}).text
-    metadata = metadata.split(" - ")
-    course_info['name'] = metadata[0]
-    course_info['period'] = int(metadata[1][len("Period "):])
-    course_info['teacher'] = metadata[-1]
+    metadata = course.find('img', {'src':'modules/Grades/Grades.png'})
+    if metadata:
+        metadata = metadata.text
+        metadata = metadata.split(" - ")
+        course_info['name'] = metadata[0]
+        course_info['period'] = int(metadata[1][len("Period "):])
+        course_info['teacher'] = metadata[-1]
 
     category_table = course.find('td', {'class': 'GrayDrawHeader'})
-    if category_table is not None:
+    if category_table:
         curr_grade = course.find(id='currentStudentGrade[]').text
         curr_grade = curr_grade.replace(u'\xa0', u' ') # replace non-breaking space with normal space
         if curr_grade.find('%') > 0:
@@ -198,7 +201,8 @@ def parse_course(course):
         count += 1
         tr = course.find('tr', id='LOy_row' + str(count))
 
-    course_info['assignments'] = assignments
+    if assignments:
+        course_info['assignments'] = assignments
     course_info = __add_marking_periods_to__(course_info, __get_marking_periods__(course))
     return course_info
 
