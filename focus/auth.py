@@ -3,14 +3,13 @@ import requests
 import sys
 
 student_sessions = {}
-login_url = "https://focus.asdnh.org/focus/index.php"
 
-def login(u, p):
+def login(u, p, url):
     data = {
         'login': 'true',
         'data': 'username=' + u + '&password=' + p
     }
-    r = requests.post(login_url, data)
+    r = requests.post(url, data)
     if r.json()['success']:
         student_sessions[r.cookies['PHPSESSID']] = u
         return r.cookies['PHPSESSID']

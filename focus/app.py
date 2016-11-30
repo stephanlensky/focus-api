@@ -10,6 +10,7 @@ app = Flask(__name__)
 api_url = '/api/v1/'
 urls = {
     'tld': 'https://focus.asdnh.org/',
+    'login': 'https://focus.asdnh.org/focus/index.php',
     'portal': 'https://focus.asdnh.org/focus/Modules.php?modname=misc/Portal.php',
     'course_pre': 'https://focus.asdnh.org/focus/Modules.php?modname=Grades/StudentGBGrades.php?course_period_id=',
     'schedule': 'https://focus.asdnh.org/focus/Modules.php?modname=Scheduling/Schedule.php',
@@ -44,7 +45,7 @@ def index():
 def login():
     if not request.json or not 'username' in request.json or not 'password' in request.json:
         abort(400)
-    r = auth.login(request.json.get('username'), request.json.get('password'))
+    r = auth.login(request.json.get('username'), request.json.get('password'), urls['login'])
     if r:
         return jsonify( { 'PHPSESSID':r } )
     else:
