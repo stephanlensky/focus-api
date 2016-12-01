@@ -4,7 +4,7 @@ import sys
 import time
 
 student_sessions = {}
-timeout = 20 * 60 # in minutes
+timeout = 20 * 60 # in seconds
 
 
 def login(u, p, url):
