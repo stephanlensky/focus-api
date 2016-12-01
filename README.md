@@ -1,6 +1,6 @@
 # Focus Student Information System API
 
-A simple RESTful Flask server to retrieve and parse pages from the Focus for Schools Student Information System (SIS). Although it was created for the [Academy for Science and Design](http://www.asdnh.org/), this service should work for any school running the Focus SIS. Simply change all of the URLs `focus/app.py` to the equivalent ones for your school. The project is currently still in early development, so there are a bunch of bugs and the module does not yet have an installer.
+A simple RESTful Flask server to retrieve and parse pages from the Focus for Schools Student Information System (SIS). Although it was created for the [Academy for Science and Design](http://www.asdnh.org/), this service should work for any school running the Focus SIS. See [Supporting Additional Schools](#supporting-additional-schools) for details. to the equivalent ones for your school. The project is currently still in early development, so there are a bunch of bugs and the module does not yet have an installer.
 
 **Complete**
 
@@ -52,6 +52,25 @@ Next, clone the repository and run the `app.py` to start the server. In it's def
 git clone https://github.com/dvshka/focus-api.git && cd focus-api
 python3 focus/app.py
 ```
+
+### Supporting Additional Schools
+
+By default, this module will attempt to connect to ASDNH's Focus servers. In order to modify the program to work for other schools, a some constants may need be changed at the top of `app.py`.
+
+```python
+tld = 'https://focus.asdnh.org/'
+urls = {
+    'login': tld + 'focus/index.php',
+    'portal': tld + 'focus/Modules.php?modname=misc/Portal.php',
+    'course_pre': tld + 'focus/Modules.php?modname=Grades/StudentGBGrades.php?course_period_id=',
+    'schedule': tld + 'focus/Modules.php?modname=Scheduling/Schedule.php',
+    'calendar_pre': tld + 'focus/Modules.php?modname=School_Setup/Calendar.php&',
+    'demographic': tld + 'focus/Modules.php?modname=Students/Student.php',
+    'absences': tld + 'focus/Modules.php?modname=Attendance/StudentSummary.php',
+}
+```
+
+As you can see, all URLs are build dynamically using from a top level domain. It may be enough to simply change the TLD, but if your implementation of Focus differs slightly, the URLs in `urls` may also need to be modified. If there are other bugs related to your specific school, please open an issue [here](https://github.com/dvshka/focus-api/issues) and I will look into it as soon as possible.
 
 ## Client Documentation
 
