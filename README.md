@@ -1,6 +1,6 @@
 # Focus Student Information System API
 
-A simple RESTful Flask server to retrieve and parse pages from the Focus for Schools Student Information System (SIS). Although it was created for the [Academy for Science and Design](http://www.asdnh.org/), this service should work for any school running the Focus SIS. See [Supporting Additional Schools](#supporting-additional-schools) for details. to the equivalent ones for your school. The project is currently still in early development, so there are a bunch of bugs and the module does not yet have an installer.
+A simple RESTful Flask server to retrieve and parse pages from the Focus for Schools Student Information System (SIS). Although it was created for the [Academy for Science and Design](http://www.asdnh.org/), this service should work for any school running the Focus SIS (see [Supporting Additional Schools](#supporting-additional-schools) for details). The project is currently still in early development, so there are a bunch of bugs and the module does not yet have an installer.
 
 **Complete**
 
