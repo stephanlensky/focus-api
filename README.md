@@ -55,7 +55,7 @@ python3 focus/app.py
 
 ### Supporting Additional Schools
 
-By default, this module will attempt to connect to ASDNH's Focus servers. In order to modify the program to work for other schools, a some constants may need be changed at the top of `app.py`.
+By default, this module will attempt to connect to ASDNH's Focus servers. In order to modify the program to work for other schools, constants need be changed at the top of `app.py`.
 
 ```python
 tld = 'https://focus.asdnh.org/'
@@ -70,7 +70,7 @@ urls = {
 }
 ```
 
-As you can see, all URLs are build dynamically using from a top level domain. It may be enough to simply change the TLD, but if your implementation of Focus differs slightly, the URLs in `urls` may also need to be modified. If there are other bugs related to your specific school, please open an issue [here](https://github.com/dvshka/focus-api/issues) and I will look into it as soon as possible.
+As you can see, all URLs are build dynamically from a given top level domain. It may be enough to simply change the TLD, but if your implementation of Focus differs slightly, the URLs in `urls` may also need to be modified. If there are other bugs related to your specific school, please open an issue [here](https://github.com/dvshka/focus-api/issues) and I will look into it as soon as possible.
 
 ## Client Documentation
 
