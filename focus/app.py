@@ -53,7 +53,7 @@ def login():
 
 @app.route(api_url + 'marking_period', methods = ['POST'])
 def set_marking_period():
-    if request.cookies.get('PHPSESSID') not in auth.student_sessions:
+    if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
     if not request.args.get('year') or not request.args.get('mp'):
         abort(400)
@@ -61,21 +61,21 @@ def set_marking_period():
     if not year.isdigit() or not mp.isdigit():
         abort(400)
     year, mp = int(year), int(mp)
-
+    
     r = requests.post(urls['portal'], data={'side_syear': year, 'side_mp': mp}, cookies=request.cookies)
     return jsonify(parser.parse_portal(r.text))
 
 
 @app.route(api_url + 'portal', methods = ['GET'])
 def get_portal():
-    if request.cookies.get('PHPSESSID') not in auth.student_sessions:
+    if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
     r = requests.get(urls['portal'], cookies=request.cookies)
     return jsonify(parser.parse_portal(r.text))
 
 @app.route(api_url + 'course/<int:course_id>', methods = ['GET'])
 def get_course(course_id):
-    if request.cookies.get('PHPSESSID') not in auth.student_sessions:
+    if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
     r = requests.get(urls['course_pre'] + str(course_id), cookies=request.cookies)
     if r.status_code == 404:
@@ -84,14 +84,14 @@ def get_course(course_id):
 
 @app.route(api_url + 'schedule', methods = ['GET'])
 def get_schedule():
-    if request.cookies.get('PHPSESSID') not in auth.student_sessions:
+    if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
     r = requests.get(urls['schedule'], cookies=request.cookies)
     return jsonify(parser.parse_schedule(r.text))
 
 @app.route(api_url + 'calendar', methods = ['GET'])
 def get_calendar():
-    if request.cookies.get('PHPSESSID') not in auth.student_sessions:
+    if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
     if not request.args.get('month') or not request.args.get('year'):
         abort(400)
@@ -106,7 +106,7 @@ def get_calendar():
 
 @app.route(api_url + 'demographic', methods = ['GET'])
 def get_demographic():
-    if request.cookies.get('PHPSESSID') not in auth.student_sessions:
+    if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
     r = requests.get(urls['demographic'], cookies=request.cookies)
     ret = parser.parse_demographic(r.text)
