@@ -4,6 +4,7 @@ import sys
 import time
 
 student_sessions = {}
+timeout = 20 * 60 # in minutes
 
 
 def login(u, p, url):
@@ -22,7 +23,7 @@ def login(u, p, url):
 
 
 def is_valid_session(sess_id):
-    if sess_id in student_sessions and time.time() < student_sessions[sess_id][1] + (20 * 60):
+    if sess_id in student_sessions and time.time() < student_sessions[sess_id][1] + timeout:
         student_sessions[sess_id] = student_sessions[sess_id][0], time.time()
         return True
     elif sess_id in student_sessions:
