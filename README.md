@@ -4,7 +4,8 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 
 **Complete**
 
-- Basic changing semester/year (marking period)
+- Authentication
+- Setting semester/year
 - Courses
 - Calendar
 - Demographic
@@ -12,7 +13,6 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 
 **In Progress**
 
-- Authentication (doesn't account for session timing out)
 - Portal (missing alerts)
 
 **Planned**
