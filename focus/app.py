@@ -35,6 +35,10 @@ def forbidden(error):
 def not_found(error):
     return make_response(jsonify( { 'error': 'Not found' } ), 404)
 
+@app.errorhandler(500)
+def internal_server_error(error):
+    return make_response(jsonify( { 'error': 'Internal server error' } ), 500)
+
 
 @app.route(api_url)
 def index():
@@ -46,8 +50,10 @@ def login():
     if not request.json or not 'username' in request.json or not 'password' in request.json:
         abort(400)
     r = auth.login(request.json.get('username'), request.json.get('password'), urls['login'])
-    if r:
-        return jsonify( { 'PHPSESSID':r } )
+    if r is not None and 'PHPSESSID' in r:
+        return jsonify(r)
+    elif r is not None:
+        abort(500)
     else:
         abort(401)
 
@@ -61,8 +67,10 @@ def set_marking_period():
     if not year.isdigit() or not mp.isdigit():
         abort(400)
     year, mp = int(year), int(mp)
-    
+
     r = requests.post(urls['portal'], data={'side_syear': year, 'side_mp': mp}, cookies=request.cookies)
+    if r.status_code != 200:
+        abort(500)
     return jsonify(parser.parse_portal(r.text))
 
 
@@ -71,6 +79,8 @@ def get_portal():
     if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
     r = requests.get(urls['portal'], cookies=request.cookies)
+    if r.status_code != 200:
+        abort(500)
     return jsonify(parser.parse_portal(r.text))
 
 @app.route(api_url + 'course/<int:course_id>', methods = ['GET'])
@@ -80,6 +90,8 @@ def get_course(course_id):
     r = requests.get(urls['course_pre'] + str(course_id), cookies=request.cookies)
     if r.status_code == 404:
         abort(404)
+    elif r.status_code != 200:
+        abort(500)
     return jsonify(parser.parse_course(r.text))
 
 @app.route(api_url + 'schedule', methods = ['GET'])
@@ -87,6 +99,8 @@ def get_schedule():
     if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
     r = requests.get(urls['schedule'], cookies=request.cookies)
+    if r.status_code != 200:
+        abort(500)
     return jsonify(parser.parse_schedule(r.text))
 
 @app.route(api_url + 'calendar', methods = ['GET'])
@@ -102,6 +116,8 @@ def get_calendar():
         abort(400)
 
     r = requests.get(urls['calendar_pre'] + 'month=' + month + '&year=' + year, cookies=request.cookies)
+    if r.status_code != 200:
+        abort(500)
     return jsonify(parser.parse_calendar(r.text))
 
 @app.route(api_url + 'demographic', methods = ['GET'])
@@ -109,6 +125,8 @@ def get_demographic():
     if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
     r = requests.get(urls['demographic'], cookies=request.cookies)
+    if r.status_code != 200:
+        abort(500)
     ret = parser.parse_demographic(r.text)
     img = requests.get(urls['tld'] + ret[1].replace('../', ''), cookies=request.cookies)
     ret[0]['picture'] = base64.b64encode(img.content).decode('utf-8')
