@@ -284,6 +284,40 @@ def parse_calendar(calendar):
             'year': year
         }, __get_marking_periods__(calendar))
 
+def parse_calendar_event(calendar_event):
+    calendar_event = BeautifulSoup(calendar_event, 'html.parser')
+    d = {}
+
+    tr = calendar_event.find('div', {'class': 'scroll_contents'}).find_all('tr')
+
+    # if the event actually exists
+    if tr[0].find_all('td')[1].text.replace('\u00a0', '') != '-':
+        d['date'] = parse(tr[0].find_all('td')[1].text).date().isoformat()
+        d['title'] = tr[1].find_all('td')[1].text
+
+        # if the event is an assignment
+        if tr[2].find_all('td')[0].text == 'Teacher':
+            d['type'] = 'assignment'
+            course = {}
+            course['name'] = tr[3].find_all('td')[1].text
+            data = tr[4].find_all('td')[1].text.split(' - ')
+            course['period'] = int(data[0][len("Period "):])
+            course['days'] = data[1]
+            course['teacher'] = data[3]
+            d['course'] = course
+            start = 5
+        else:
+            d['type'] = 'event'
+            start = 2
+
+        d['school'] = tr[start].find_all('td')[1].text
+        notes = tr[start + 1].find_all('td')[1].text.replace('\u00a0', ' ').strip()
+        if notes != '-':
+            d['notes'] = notes
+
+
+    return d
+
 # parse the demographic page (in student info)
 def parse_demographic(demographic):
     demographic = BeautifulSoup(demographic, 'html.parser')

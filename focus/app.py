@@ -15,12 +15,14 @@ urls = {
     'course_pre': tld + 'focus/Modules.php?modname=Grades/StudentGBGrades.php?course_period_id=',
     'schedule': tld + 'focus/Modules.php?modname=Scheduling/Schedule.php',
     'calendar_pre': tld + 'focus/Modules.php?modname=School_Setup/Calendar.php&',
+    'event_pre': tld + 'focus/Modules.php?modname=School_Setup/Calendar.php&modfunc=detail&event_id=',
+    'assignment_pre': tld + 'focus/Modules.php?modname=School_Setup/Calendar.php&modfunc=detail&assignment_id=',
     'demographic': tld + 'focus/Modules.php?modname=Students/Student.php',
     'absences': tld + 'focus/Modules.php?modname=Attendance/StudentSummary.php',
 }
 
 @app.errorhandler(400)
-def not_found(error):
+def bad_request(error):
     return make_response(jsonify( { 'error': 'Bad request' } ), 400)
 
 @app.errorhandler(401)
@@ -83,11 +85,11 @@ def get_portal():
         abort(500)
     return jsonify(parser.parse_portal(r.text))
 
-@app.route(api_url + 'course/<int:course_id>', methods = ['GET'])
-def get_course(course_id):
+@app.route(api_url + 'course/<int:id>', methods = ['GET'])
+def get_course(id):
     if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
-    r = requests.get(urls['course_pre'] + str(course_id), cookies=request.cookies)
+    r = requests.get(urls['course_pre'] + str(id), cookies=request.cookies)
     if r.status_code == 404:
         abort(404)
     elif r.status_code != 200:
@@ -119,6 +121,32 @@ def get_calendar():
     if r.status_code != 200:
         abort(500)
     return jsonify(parser.parse_calendar(r.text))
+
+@app.route(api_url + 'event/<int:id>', methods = ['GET'])
+def get_event(id):
+    if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
+        abort(403)
+
+    r = requests.get(urls['event_pre'] + str(id), cookies=request.cookies)
+    if r.status_code != 200:
+        abort(500)
+    ret = parser.parse_calendar_event(r.text)
+    if ret:
+        return jsonify(ret)
+    abort(400)
+
+@app.route(api_url + 'assignment/<int:id>', methods = ['GET'])
+def get_assignment(id):
+    if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
+        abort(403)
+
+    r = requests.get(urls['assignment_pre'] + str(id), cookies=request.cookies)
+    if r.status_code != 200:
+        abort(500)
+    ret = parser.parse_calendar_event(r.text)
+    if ret:
+        return jsonify(ret)
+    abort(400)
 
 @app.route(api_url + 'demographic', methods = ['GET'])
 def get_demographic():

@@ -7,7 +7,8 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 - Authentication
 - Setting semester/year
 - Courses
-- Calendar
+- Calendar (monthly)
+- Detailed information about events from calendar
 - Demographic
 - Schedule
 
@@ -17,7 +18,7 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 
 **Planned**
 
-- Descriptions for events from calendar
+
 - Enhanced marking period support (choose redirect page)
 - Address information
 - Absences
@@ -158,7 +159,7 @@ Returns a JSON object in the following format with information from the portal p
 }
 ```
 
-### /api/v1/course/<int:course_id>
+### /api/v1/course/<int:id>
 
 **Accepts: GET**
 
@@ -257,7 +258,7 @@ Returns a student's full year schedule, taken from Focus's "Class Registration/S
 
 **Accepts: GET**
 
-Takes a year and month as arguments in the form of a query string(`year` and `month`) and returns the calendar for that month. Retrieving the detailed description for an event requires an additional API call which has not yet been implemented. The year and month that the calendar is from has been included for debugging purposes (calling this function with an invalid year and month combination has undefined behaviour).
+Takes a year and month as arguments in the form of a query string(`year` and `month`) and returns the calendar for that month. To get more detailed information, use `/api/v1/event/<int:id>` or `/api/v1/assignment/<int:id>`. See below for more information.
 
 ```javascript
 {
@@ -279,6 +280,43 @@ Takes a year and month as arguments in the form of a query string(`year` and `mo
   "month": 11, 
   "year": 2016
   // marking period information
+}
+```
+
+### /api/v1/event/<int:id>
+
+**Accepts: GET**
+
+Retrieves detailed information about a calendar event of type `event`. If the event does not exist, a status code of 400 is returned. Please note that this is not the method for calendar events of type `assignment`. Additionally, this endpoint does not return any information about current or available marking periods.
+
+```javascript
+{
+  "date": "2016-12-14", 
+  "school": "Academy for Science and Design", 
+  "title": "SPARK Conference ", 
+  "type": "event"
+}
+```
+
+### /api/v1/assignment/<int:id>
+
+**Accepts: GET**
+
+Retrieves detailed information about a calendar event of type `assignment`. If the assignment does not exist, a status code of 400 is returned. Please note that this is not the method for calendar events of type `event`. Additionally, this endpoint does not return any information about current or available marking periods.
+
+```javascript
+{
+  "course": {
+    "days": "TWF", 
+    "name": "Advanced Computer Science", 
+    "period": 4, 
+    "teacher": "Madge  Smith"
+  }, 
+  "date": "2015-12-11", 
+  "notes": "Binary Calculator", 
+  "school": "Academy for Science and Design", 
+  "title": "Assignment 7", 
+  "type": "assignment"
 }
 ```
 
