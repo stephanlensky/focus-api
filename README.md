@@ -70,7 +70,7 @@ urls = {
 }
 ```
 
-As you can see, all URLs are build dynamically from a given top level domain. It may be enough to simply change the TLD, but if your implementation of Focus differs slightly, the URLs in `urls` may also need to be modified. Additionally, the session timeout in `focus/auth.py` may need to changed to match your school's settings. If there are other bugs related to your specific school, please open an issue [here](https://github.com/dvshka/focus-api/issues) and I will look into it as soon as possible.
+As you can see, all URLs are build dynamically from a given top level domain. It may be enough to simply change the TLD, but if your implementation of Focus differs slightly, the URLs in `urls` may also need to be modified. Additionally, the session timeout in `focus/auth.py` may need to be changed to match your school's settings. If there are other bugs related to your specific school, please open an issue [here](https://github.com/dvshka/focus-api/issues) and I will look into it as soon as possible.
 
 ## Client Documentation
 
