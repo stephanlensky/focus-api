@@ -270,7 +270,7 @@ def parse_calendar(calendar):
                 onclick = e.attrs['onclick']
 
                 id = onclick[onclick.find('_id=') + 4:onclick.find('&year')]
-                type = 'assignment' if onclick.find('assignment') >= 0 else 'event'
+                type = 'assignment' if onclick.find('assignment') >= 0 else 'occasion'
                 events.append({
                     'id': id,
                     'name': name,
@@ -307,7 +307,7 @@ def parse_calendar_event(calendar_event):
             d['course'] = course
             start = 5
         else:
-            d['type'] = 'event'
+            d['type'] = 'occasion'
             start = 2
 
         d['school'] = tr[start].find_all('td')[1].text

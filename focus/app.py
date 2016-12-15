@@ -5,9 +5,13 @@ from flask import Flask, jsonify, abort, request, make_response
 import requests
 import base64
 from focus import auth, parser
+from calendar import monthrange
+from datetime import date
+import re
+from dateutil.parser import parse
 
 app = Flask(__name__)
-api_url = '/api/v1/'
+api_url = '/api/v2/'
 tld = 'https://focus.asdnh.org/'
 urls = {
     'login': tld + 'focus/index.php',
@@ -47,37 +51,81 @@ def index():
     return "Hello, World!"
 
 
-@app.route(api_url + 'login', methods = ['POST'])
-def login():
-    if not request.json or not 'username' in request.json or not 'password' in request.json:
-        abort(400)
-    r = auth.login(request.json.get('username'), request.json.get('password'), urls['login'])
-    if r is not None and 'PHPSESSID' in r:
-        return jsonify(r)
-    elif r is not None:
-        abort(500)
-    else:
-        abort(401)
+@app.route(api_url + 'session', methods = ['GET', 'POST', 'PUT'])
+def session():
+    if request.method == 'GET':
+        if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
+            abort(403)
+        d = {
+            'username': auth.student_sessions(request.cookies.get['PHPSESSID'])[0],
+            'timeout': auth.student_sessions(request.cookies.get['PHPSESSID'])[1] + auth.timeout
+        }
+        return jsonify(d)
+    elif request.method == 'POST':
+        if not request.json or not 'username' in request.json or not 'password' in request.json:
+            abort(400)
+        r = auth.login(request.json.get('username'), request.json.get('password'), urls['login'])
+        if r == 401:
+            abort(401)
+        elif str(r).isdigit():
+            abort(500)
+        else:
+            response = jsonify(r[1])
+            response.set_cookie('PHPSESSID', value=r[0])
+            return response
+    elif request.method == 'PUT':
+        if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
+            abort(403)
+        if not request.json or not 'year' in request.json or not 'mp_id' in request.json \
+                or not isinstance(request.json['year'], int) or not isinstance(request.json['mp_id'], int):
+            abort(400)
 
-@app.route(api_url + 'marking_period', methods = ['POST'])
-def set_marking_period():
-    if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
-        abort(403)
-    if not request.args.get('year') or not request.args.get('mp'):
-        abort(400)
-    year, mp = request.args.get('year'), request.args.get('mp')
-    if not year.isdigit() or not mp.isdigit():
-        abort(400)
-    year, mp = int(year), int(mp)
+        d = {'side_syear': request.json['year'], 'side_mp': request.json['mp_id']}
+        valid_redirects = {
+            'PORTAL': api_url + '{0,1}portal',
+            'COURSE': api_url + '{0,1}courses\/[0-9]+',
+            'SCHEDULE': api_url + '{0,1}schedule',
+            'CALENDAR': api_url + '{0,1}calendar(\/[0-9]+){1,3}',
+            'DEMOGRAPHIC': api_url + '{0,1}demographic'
+        }
 
-    r = requests.post(urls['portal'], data={'side_syear': year, 'side_mp': mp}, cookies=request.cookies)
-    if r.status_code != 200:
-        abort(500)
-    return jsonify(parser.parse_portal(r.text))
+        if 'redirect' in request.json:
+            redirect = request.json['redirect']
+            picked = None
+            for r in valid_redirects:
+                p = re.compile(valid_redirects[r], re.IGNORECASE)
+                m = p.match(redirect)
+                if m is not None and len(m.string) == len(redirect):
+                    picked = r
+                    break
+
+            if picked == 'COURSE':
+                id = redirect.split('/')[1]
+                r = requests.post(urls['course_pre'] + id, data=d, cookies=request.cookies)
+                parsed = parser.parse_course(r.text)
+            elif picked == 'SCHEDULE':
+                r = requests.post(urls['schedule'], data=d, cookies=request.cookies)
+                parsed = parser.parse_schedule(r.text)
+            elif picked == 'CALENDAR':
+                split = redirect.split('/').reverse()
+                abort(500)
+            elif picked == 'DEMOGRAPHIC':
+                r = requests.post(urls['demographic'], data=d, cookies=request.cookies)
+                parsed = parser.parse_demographic(r.text)
+            else:
+                r = requests.post(urls['portal'], data=d, cookies=request.cookies)
+                parsed = parser.parse_portal(r.text)
+        else:
+            r = requests.post(urls['portal'], data=d, cookies=request.cookies)
+            parsed = parser.parse_portal(r.text)
+
+        if r.status_code != 200:
+            abort(500)
+        return jsonify(parsed)
 
 
 @app.route(api_url + 'portal', methods = ['GET'])
-def get_portal():
+def portal():
     if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
     r = requests.get(urls['portal'], cookies=request.cookies)
@@ -85,8 +133,8 @@ def get_portal():
         abort(500)
     return jsonify(parser.parse_portal(r.text))
 
-@app.route(api_url + 'course/<int:id>', methods = ['GET'])
-def get_course(id):
+@app.route(api_url + 'courses/<int:id>', methods = ['GET'])
+def course(id):
     if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
     r = requests.get(urls['course_pre'] + str(id), cookies=request.cookies)
@@ -97,7 +145,7 @@ def get_course(id):
     return jsonify(parser.parse_course(r.text))
 
 @app.route(api_url + 'schedule', methods = ['GET'])
-def get_schedule():
+def schedule():
     if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
     r = requests.get(urls['schedule'], cookies=request.cookies)
@@ -105,38 +153,58 @@ def get_schedule():
         abort(500)
     return jsonify(parser.parse_schedule(r.text))
 
-@app.route(api_url + 'calendar', methods = ['GET'])
-def get_calendar():
+@app.route(api_url + 'calendar/<int:year>', methods = ['GET'])
+def calendar_by_year(year):
     if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
-    if not request.args.get('month') or not request.args.get('year'):
-        abort(400)
-    month, year = request.args.get('month'), request.args.get('year')
-    if not month.isdigit() or not year.isdigit():
-        abort(400)
-    if not int(month) > 0 or not int(month) < 13:
+
+    query = "month={}&year={}".format(1, year)
+    r = requests.get(urls['calendar_pre'] + query, cookies=request.cookies)
+    if r.status_code != 200:
+        abort(500)
+    parsed = parser.parse_calendar(r.text)
+    d = parsed
+    d.pop('month')
+    for i in range(2, 13):
+        query = "month={}&year={}".format(i, year)
+        r = requests.get(urls['calendar_pre'] + query, cookies=request.cookies)
+        if r.status_code != 200:
+            abort(500)
+        parsed = parser.parse_calendar(r.text)
+        d['events'] = d['events'] + parsed['events']
+    return jsonify(d)
+
+@app.route(api_url + 'calendar/<int:year>/<int:month>', methods = ['GET'])
+def calendar_by_month(year, month):
+    if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
+        abort(403)
+    if not month > 0 or not month < 13:
         abort(400)
 
-    r = requests.get(urls['calendar_pre'] + 'month=' + month + '&year=' + year, cookies=request.cookies)
+    query = "month={}&year={}".format(month, year)
+    r = requests.get(urls['calendar_pre'] + query, cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
     return jsonify(parser.parse_calendar(r.text))
 
-@app.route(api_url + 'event/<int:id>', methods = ['GET'])
-def get_event(id):
+@app.route(api_url + 'calendar/<int:year>/<int:month>/<int:day>', methods = ['GET'])
+def calendar_by_day(year, month, day):
     if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
+    if month < 1 or month > 12 or day < monthrange(year, month)[0] or day > monthrange(year, month)[1]:
+        abort(400)
 
-    r = requests.get(urls['event_pre'] + str(id), cookies=request.cookies)
+    query = "month={}&year={}".format(month, year)
+    r = requests.get(urls['calendar_pre'] + query, cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
-    ret = parser.parse_calendar_event(r.text)
-    if ret:
-        return jsonify(ret)
-    abort(400)
+    parsed = parser.parse_calendar(r.text)
+    parsed['events'] = [i for i in parsed['events'] if parse(i['date']).day == day]
+    parsed['day'] = day
+    return jsonify(parsed)
 
-@app.route(api_url + 'assignment/<int:id>', methods = ['GET'])
-def get_assignment(id):
+@app.route(api_url + 'calendar/assignments/<int:id>', methods = ['GET'])
+def holiday(id):
     if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
 
@@ -148,8 +216,21 @@ def get_assignment(id):
         return jsonify(ret)
     abort(400)
 
+@app.route(api_url + 'calendar/occasions/<int:id>', methods = ['GET'])
+def assignment(id):
+    if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
+        abort(403)
+
+    r = requests.get(urls['event_pre'] + str(id), cookies=request.cookies)
+    if r.status_code != 200:
+        abort(500)
+    ret = parser.parse_calendar_event(r.text)
+    if ret:
+        return jsonify(ret)
+    abort(400)
+
 @app.route(api_url + 'demographic', methods = ['GET'])
-def get_demographic():
+def demographic():
     if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
         abort(403)
     r = requests.get(urls['demographic'], cookies=request.cookies)

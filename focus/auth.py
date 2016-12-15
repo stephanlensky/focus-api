@@ -17,9 +17,9 @@ def login(u, p, url):
         return r.status_code
     if r.json()['success']:
         student_sessions[r.cookies['PHPSESSID']] = u, time.time()
-        return {'PHPSESSID': r.cookies['PHPSESSID']}
+        return r.cookies['PHPSESSID'], get_info(r.cookies['PHPSESSID'])
     else:
-        return None
+        return 401
 
 
 def is_valid_session(sess_id):
@@ -29,3 +29,9 @@ def is_valid_session(sess_id):
     elif sess_id in student_sessions:
         student_sessions.pop(sess_id)
     return False
+
+def get_info(sess_id):
+    return {
+        'timeout': student_sessions[sess_id][1] + timeout,
+        'username': student_sessions[sess_id][0]
+    }
