@@ -15,11 +15,10 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 **In Progress**
 
 - Portal (missing alerts)
+- Enhanced marking period support (choose redirect page)
 
 **Planned**
 
-
-- Enhanced marking period support (choose redirect page)
 - Address information
 - Absences
 - Referrals
@@ -47,7 +46,7 @@ Before doing anything else, make sure you have all of the dependencies installed
 pip3 install flask requests beautifulsoup4 python-dateutil
 ```
 
-Next, clone the repository and run the `app.py` to start the server. In it's default configuration, it will host itself locally on your machine at http://127.0.0.1:5000/api/v1.
+Next, clone the repository and run the `app.py` to start the server. In it's default configuration, it will host itself locally on your machine at http://127.0.0.1:5000/api/v2.
 
 ```bash
 git clone https://github.com/dvshka/focus-api.git && cd focus-api
@@ -75,22 +74,19 @@ As you can see, all URLs are build dynamically from a given top level domain. It
 
 ## Client Documentation
 
-The API does its best to follow RESTful guidelines while still connecting as an unprivileged user to Focus servers. As such, using the API should be fairly self explanatory.
+The API does its best to follow RESTful guidelines while still connecting as an unprivileged user to Focus servers. As such, using the API should be fairly self explanatory. All payloads are passed and returned using JSON unless otherwise specified.
 
 ```python
 # Python example using requests
 
 # log in and retrieve session cookie
 d = {'username':'your.username', 'password':'yourpassword'}
-r = requests.post('http://127.0.0.1:5000/api/v1/login', json=d)
-sess_id = r.json()
+r = requests.post('http://127.0.0.1:5000/api/v1/session', json=d)
+sess_id = r.cookies
 
 # change the marking period to semester two of 2015
-params = {
-  'year': 2015,
-  'mp': 315
-}
-r = requests.post('http://127.0.0.1:5000/api/v1/marking_period', params=params, cookies=sess_id
+d = {'year': 2015, 'mp_id': 315}
+r = requests.put('http://127.0.0.1:5000/api/v1/session', json=d, cookies=sess_id
 
 # retrieve and print the student's courses
 r = requests.get('http://127.0.0.1:5000/api/v1/portal', cookies=sess_id)
@@ -98,36 +94,58 @@ print(r.json()['courses'])
 
 ```
 
-### /api/v1/login
+### session
 
-**Accepts: POST**
+**Accepts: GET, POST, PUT**
 
-Takes JSON formatted login information and attempts to log in to Focus. Returns your session ID if your login was successful and a 401 invalid credentials error if it was not. All other endpoints require a valid session ID cookie in order to work.
+###### Get
 
+Returns the username and timeout (in seconds, UTC) associated with the session id cookie provided. 403s when there is no session associated with the cookie.
+
+```javascript
+{
+  "timeout": 1481819260.7088594, 
+  "username": "stephan.lensky"
+}
+```
+
+###### POST
+
+Takes JSON formatted login information and attempts to log in to Focus. Returns some information about the login and a session cookie if your login was successful. 401s if it was not. All other endpoints require a valid session ID cookie in order to work.
+
+Sent:
 ```javascript
 {
   "username": "your.username"
   "password": "yourpassword"
 }
 ```
+Returned:
 ```javascript
+// JSON
 {
-  "PHPSESSID": "yoursessid"
+  "timeout": 1481819260.7088594, 
+  "username": "your.username"
+}
+// Cookie
+{
+    PHPSESSID: "your_session_id"
 }
 ```
 
-### /api/v1/marking_period
+###### PUT
 
-**Accepts: POST**
-
-Takes a year and a marking period ID and changes the current marking period. Arguments are taken as a query string, with the year as `year` and the marking period ID as `mp`. Returns the portal for the new marking period. Information about available marking periods is appended to the JSON object returned by every other endpoint, not including login. However, only IDs for the selected year are available due to constraints set by the Focus web application. When changing to a new year, the marking period ID does not seem to be used, so any value will work.
+Updates the marking period given a year and marking period id. An additional `redirect` parameter may be given to specify the page returned after changing the marking period. Valid redirect values follow the same format as API urls. So for example, to retrieve the new portal, send `portal`. To retrieve course 15206, send `course/15206`. Redirection to detailed calendar event descriptions (under `calendar/assignments` and `calendar/occasions`) is not supported. When no redirect is specified, the portal of the new marking period will be provided.
 
 ```javascript
-  "current_mp_year": 2015
-  "current_mp_id": 315
-  "available_mp_years": [2011, 2012, 2013, 2014, 2015, 2016, 2017]
-  "available_mp_ids": [314, 315]
+{
+  "year": 2015
+  "mp_id": 315
+  "redirect": "course/15206" // optional
+}
 ```
+
+The JSON returned will be equivalent to sending a GET request to `course/15206`. However, doing both the marking period change and redirection in one step takes less time.
 
 ### /api/v1/portal
 
@@ -159,7 +177,7 @@ Returns a JSON object in the following format with information from the portal p
 }
 ```
 
-### /api/v1/course/<int:id>
+### courses/<int:id>
 
 **Accepts: GET**
 
@@ -214,7 +232,7 @@ Returns information about the course ID in the URL. Make sure that you are in th
 }
 ```
 
-### /api/v1/schedule
+### schedule
 
 **Accepts: GET**
 
@@ -254,11 +272,11 @@ Returns a student's full year schedule, taken from Focus's "Class Registration/S
 }
 ```
 
-### /api/v1/calendar
+### calendar/<int:year>/<int:month>/<int:day>
 
 **Accepts: GET**
 
-Takes a year and month as arguments in the form of a query string(`year` and `month`) and returns the calendar for that month. To get more detailed information, use `/api/v1/event/<int:id>` or `/api/v1/assignment/<int:id>`. See below for more information.
+Returns a calendar for the specificity provided. The day may be omitted to give a full month, and the month may be omitted to get a full year. Focus provides calendars only by month, so retrieving a full year's calendar is very slow. To retrieve additional information about events, use `calendar/assignments/<int:id>` and `calendar/occasions/<int:id>`, depending on the type of the event.
 
 ```javascript
 {
@@ -273,21 +291,24 @@ Takes a year and month as arguments in the form of a query string(`year` and `mo
       "date": "2016-11-07", 
       "id": "697", 
       "name": "Progress Reports", 
-      "type": "event"
+      "type": "occasion"
     }, 
     ...
   ], 
+  
+  // if you request a calendar only for one day, that day will be listed here as well
+  // for a full year, only the year will be listed
   "month": 11, 
   "year": 2016
   // marking period information
 }
 ```
 
-### /api/v1/event/<int:id>
+### calendar/occasion/<int:id>
 
 **Accepts: GET**
 
-Retrieves detailed information about a calendar event of type `event`. If the event does not exist, a status code of 400 is returned. Please note that this is not the method for calendar events of type `assignment`. Additionally, this endpoint does not return any information about current or available marking periods.
+Retrieves detailed information about a calendar event of type `occasion`. If the event does not exist, a status code of 400 is returned. Please note that this is not the method for calendar events of type `assignment`. Additionally, this endpoint does not return any information about current or available marking periods.
 
 ```javascript
 {
@@ -298,11 +319,11 @@ Retrieves detailed information about a calendar event of type `event`. If the ev
 }
 ```
 
-### /api/v1/assignment/<int:id>
+### calendar/assignment/<int:id>
 
 **Accepts: GET**
 
-Retrieves detailed information about a calendar event of type `assignment`. If the assignment does not exist, a status code of 400 is returned. Please note that this is not the method for calendar events of type `event`. Additionally, this endpoint does not return any information about current or available marking periods.
+Retrieves detailed information about a calendar event of type `assignment`. If the assignment does not exist, a status code of 400 is returned. Please note that this is not the method for calendar events of type `occasion`. Additionally, this endpoint does not return any information about current or available marking periods.
 
 ```javascript
 {
@@ -320,7 +341,7 @@ Retrieves detailed information about a calendar event of type `assignment`. If t
 }
 ```
 
-### /api/v1/demographic
+### demographic
 
 **Accepts: GET**
 
