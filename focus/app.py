@@ -46,11 +46,6 @@ def internal_server_error(error):
     return make_response(jsonify( { 'error': 'Internal server error' } ), 500)
 
 
-@app.route(api_url)
-def index():
-    return "Hello, World!"
-
-
 @app.route(api_url + 'session', methods = ['GET', 'POST', 'PUT'])
 def session():
     if request.method == 'GET':
@@ -85,7 +80,6 @@ def session():
             'PORTAL': api_url + '{0,1}portal',
             'COURSE': api_url + '{0,1}courses\/[0-9]+',
             'SCHEDULE': api_url + '{0,1}schedule',
-            'CALENDAR': api_url + '{0,1}calendar(\/[0-9]+){1,3}',
             'DEMOGRAPHIC': api_url + '{0,1}demographic'
         }
 
@@ -106,9 +100,6 @@ def session():
             elif picked == 'SCHEDULE':
                 r = requests.post(urls['schedule'], data=d, cookies=request.cookies)
                 parsed = parser.parse_schedule(r.text)
-            elif picked == 'CALENDAR':
-                split = redirect.split('/').reverse()
-                abort(500)
             elif picked == 'DEMOGRAPHIC':
                 r = requests.post(urls['demographic'], data=d, cookies=request.cookies)
                 parsed = parser.parse_demographic(r.text)
@@ -240,6 +231,7 @@ def demographic():
     img = requests.get(urls['tld'] + ret[1].replace('../', ''), cookies=request.cookies)
     ret[0]['picture'] = base64.b64encode(img.content).decode('utf-8')
     return jsonify(ret[0])
+
 
 if __name__ == '__main__':
     app.run(debug=True)
