@@ -97,7 +97,7 @@ print(r.json()['courses'])
 
 **Accepts: GET, POST, PUT**
 
-###### Get
+###### GET
 
 Returns the username and timeout (in seconds, UTC) associated with the session id cookie provided. 403s when there is no session associated with the cookie.
 
