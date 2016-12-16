@@ -23,6 +23,7 @@ urls = {
     'assignment_pre': tld + 'focus/Modules.php?modname=School_Setup/Calendar.php&modfunc=detail&assignment_id=',
     'demographic': tld + 'focus/Modules.php?modname=Students/Student.php',
     'absences': tld + 'focus/Modules.php?modname=Attendance/StudentSummary.php',
+    'referrals': tld + 'focus/Modules.php?force_package=SIS&modname=Discipline/Referrals.php'
 }
 
 @app.errorhandler(400)
@@ -232,6 +233,14 @@ def demographic():
     ret[0]['picture'] = base64.b64encode(img.content).decode('utf-8')
     return jsonify(ret[0])
 
+@app.route(api_url + 'referrals', methods = ['GET'])
+def referrals():
+    if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
+        abort(403)
+    r = requests.get(urls['referrals'], cookies=request.cookies)
+    if r.status_code != 200:
+        abort(500)
+    return jsonify(parser.parse_referrals(r.text))
 
 if __name__ == '__main__':
     app.run(debug=True)

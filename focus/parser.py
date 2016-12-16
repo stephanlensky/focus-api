@@ -2,7 +2,9 @@ from bs4 import BeautifulSoup
 from bs4 import Comment
 from dateutil.parser import parse
 from datetime import date
+import json
 import sys
+import re
 
 
 # returns a tuple with the current marking period and available marking periods for the page
@@ -344,7 +346,6 @@ def parse_demographic(demographic):
     d['force_pass_change'] = False if td[2].text == 'No' else True
 
     td = tables[1].find_all('td')
-    # d['birthday'] = parse(td[2].find(string=lambda text: isinstance(text, Comment)).strip()).date().isoformat()
     d['birthday'] = td[1].find(string=lambda text: isinstance(text, Comment))
     d['level'] = td[3].text
     d['gender'] = td[5].text.lower()
@@ -385,4 +386,61 @@ def parse_demographic(demographic):
 
 # parse the referrals page
 def parse_referrals(referrals):
-    pass #unimplemented
+    referrals = BeautifulSoup(referrals, 'html.parser')
+    d = {}
+    d['referrals'] = []
+
+    data = referrals.find_all("script")[12].string
+    s = data.find('var records = ') + len('var records = ')
+    f = data[s:].find('};\n') + 19
+
+    # see if the user has any referrals
+    has_referrals = True
+    try:
+        json_object = json.loads(data[s:f])
+    except ValueError:
+        has_referrals = False
+
+    if has_referrals:
+        records = json.loads(data[s:f])
+
+        for id in records:
+            ref = {}
+            for k in records[id]:
+                if not k.startswith('CUSTOM_'):
+                    continue
+                violation = records[id][k]
+                if violation is not None and violation != 'Other':
+                    violation = str(records[id][k])
+                    if violation.startswith("['', '"):
+                        violation = violation[6:-6]
+                    ref['violation'] = violation
+            ref['creation_date'] = records[id]['CREATION_DATE']
+            ref['display'] = records[id]['DISPLAY'] == 'Y'
+            ref['entry_date'] = records[id]['ENTRY_DATE']
+            ref['last_updated'] = records[id]['LAST_UPDATED']
+            ref['notification_sent'] = records[id]['NOTIFICATION_SENT']
+            ref['processed'] = records[id]['PROCESSED'] == 'Y'
+            ref['id'] = int(id)
+            if records[id]['SUSPENSION_BEGIN']:
+                ref['suspension_begin'] = records[id]['SUSPENSION_BEGIN']
+                ref['suspension_end'] = records[id]['SUSPENSION_END']
+            ref['school_year'] = records[id]['SYEAR']
+            ref['school'] = records[id]['_school']
+
+            student_name = BeautifulSoup(records[id]['_student'], 'html.parser').text.strip().split(', ')
+            staff_name = records[id]['_staff_name'].split(',')
+
+            ref['student'] = {
+                'grade': int(records[id]['_grade']),
+                'name': student_name[1] + ' ' + student_name[0],
+                'id': records[id]['STUDENT_ID']
+            }
+            ref['staff'] = {
+                'name': staff_name[1] + ' ' + staff_name[0],
+                'id': records[id]['STAFF_ID']
+            }
+            d['referrals'].append(ref)
+
+    d = __add_marking_periods_to__(d, __get_marking_periods__(referrals))
+    return d

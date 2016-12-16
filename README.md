@@ -11,17 +11,16 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 - Detailed information about events from calendar
 - Demographic
 - Schedule
+- Referrals
 
 **In Progress**
 
 - Portal (missing alerts)
-- Enhanced marking period support (choose redirect page)
 
 **Planned**
 
 - Address information
 - Absences
-- Referrals
 - Final grades and GPA
 
 **Unplanned**
@@ -366,6 +365,40 @@ Returns basic information about the student account and the student's most recen
   "photo_auth": true, 
   "picture": "/9j/4AAQSkZJRgA...7i0zUDmcD3qSH/VLQB//Z", 
   "username": "stephan.lensky"
+  // marking period information
+}
+```
+
+### referrals
+
+Returns a list of referrals that the student has receieved during the current school year. If the student has no referrals, the `referrals` array is empty and only the marking period information is returned.
+
+```javascript
+{
+  "referrals": [
+    {
+      "creation_date": "2016-10-13", 
+      "display": true, 
+      "entry_date": "2016-10-13", 
+      "id": 3168, 
+      "last_updated": "2016-10-13", 
+      "notification_sent": 0, 
+      "processed": true, 
+      "school": "Academy for Science and Design", 
+      "school_year": 2016, 
+      "staff": {
+        "id": 304, 
+        "name": "Douglass Belley"
+      }, 
+      "student": {
+        "grade": 11, 
+        "id": 426, 
+        "name": "Stephan Lensky"
+      }, 
+      "violation": "Eating in classroom"
+    },
+    ...
+  ]
   // marking period information
 }
 ```
