@@ -6,13 +6,8 @@ import json
 import sys
 import re
 
-
-# returns a tuple with the current marking period and available marking periods for the page
-# [0] - current mp year
-# [1] - current mp id
-# [2] - available years
-# [3] - available ids
-def __get_marking_periods__(page):
+def get_marking_periods(page):
+    page = BeautifulSoup(page, 'html.parser')
     years = page.find('select', {'name': 'side_syear'}).findChildren()
     selected_year = ''
     available_years = []
@@ -29,15 +24,12 @@ def __get_marking_periods__(page):
             selected_mp = int(mp['value'])
         available_mps.append(int(mp['value']))
 
-    return selected_year, selected_mp, available_years, available_mps
-
-# add marking period info to a dictionary
-def __add_marking_periods_to__(d, mp):
-    d['current_mp_year'] = mp[0]
-    d['current_mp_id'] = mp[1]
-    d['available_mp_years'] = mp[2]
-    d['available_mp_ids'] = mp[3]
-    return d
+    return {
+        'current_mp_year': selected_year,
+        'current_mp_id': selected_mp,
+        'available_mp_years': available_years,
+        'available_mp_ids': available_mps
+    }
 
 
 # parse the homepage of Focus (the portal)
@@ -91,13 +83,17 @@ def parse_portal(portal):
         event['date'] = date(year, month, day).isoformat()
         events.append(event)
 
-    return __add_marking_periods_to__({'events': events, 'courses': courses}, __get_marking_periods__(portal))
+    return {'events': events, 'courses': courses}
 
 
 # parse a course page
 def parse_course(course):
     course = BeautifulSoup(course, 'html.parser')
     course_info = {}
+
+    s = str(course).find('course_period_id=') + len('course_period_id=')
+    f = str(course)[s:].find('&') + s
+    course_info['id'] = int(str(course)[s:f])
 
     metadata = course.find('img', {'src':'modules/Grades/Grades.png'})
     if metadata:
@@ -205,7 +201,6 @@ def parse_course(course):
 
     if assignments:
         course_info['assignments'] = assignments
-    course_info = __add_marking_periods_to__(course_info, __get_marking_periods__(course))
     return course_info
 
 # parse the schedule page
@@ -234,7 +229,7 @@ def parse_schedule(schedule):
         courses.append(course)
         count += 1
         tr = schedule.find('tr', id='LOy_row' + str(count))
-    return __add_marking_periods_to__({'courses':courses}, __get_marking_periods__(schedule))
+    return {'courses':courses}
 
 # parse the calendar page
 def parse_calendar(calendar):
@@ -280,11 +275,11 @@ def parse_calendar(calendar):
                     'date': d
                 })
 
-    return __add_marking_periods_to__({
+    return {
             'events': events,
             'month': month,
             'year': year
-        }, __get_marking_periods__(calendar))
+        }
 
 def parse_calendar_event(calendar_event):
     calendar_event = BeautifulSoup(calendar_event, 'html.parser')
@@ -381,7 +376,6 @@ def parse_demographic(demographic):
     if 'student_mobile' in d: d['student_mobile'] = d['student_mobile'] \
                                                     .replace(' ', '').replace('-', '').replace('(', '').replace(')', '')
 
-    d = __add_marking_periods_to__(d, __get_marking_periods__(demographic))
     return d, picture_url
 
 # parse the referrals page
@@ -392,7 +386,7 @@ def parse_referrals(referrals):
 
     data = referrals.find_all("script")[12].string
     s = data.find('var records = ') + len('var records = ')
-    f = data[s:].find('};\n') + 19
+    f = data[s:].find(';\n') + s
 
     # see if the user has any referrals
     has_referrals = True
@@ -442,5 +436,4 @@ def parse_referrals(referrals):
             }
             d['referrals'].append(ref)
 
-    d = __add_marking_periods_to__(d, __get_marking_periods__(referrals))
     return d

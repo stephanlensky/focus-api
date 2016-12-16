@@ -97,7 +97,7 @@ print(r.json()['courses'])
 
 **Accepts: GET, POST, PUT**
 
-###### Get
+###### GET
 
 Returns the username and timeout (in seconds, UTC) associated with the session id cookie provided. 403s when there is no session associated with the cookie.
 
@@ -146,7 +146,7 @@ Updates the marking period given a year and marking period id. An additional `re
 
 The JSON returned will be equivalent to sending a GET request to `course/15206`. However, doing both the marking period change and redirection in one step takes less time.
 
-### /api/v1/portal
+### portal
 
 **Accepts: GET**
 
@@ -173,6 +173,24 @@ Returns a JSON object in the following format with information from the portal p
     }, 
     ...
     // marking period information
+}
+```
+
+### courses
+
+**Accepts: GET**
+
+Returns information about all courses that the student has. This endpoint scrapes information from every course page individually, which means that it has to load up to eight full pages in order to retrieve everything. As a result calling this method will take quite some time. Use it at your own risk.
+
+```javascript
+{
+  courses: [
+    {
+      // see below for course format
+    },
+    ...
+  ]
+  // marking period information
 }
 ```
 
@@ -377,28 +395,39 @@ Returns a list of referrals that the student has receieved during the current sc
 {
   "referrals": [
     {
-      "creation_date": "2016-10-13", 
-      "display": true, 
-      "entry_date": "2016-10-13", 
-      "id": 3168, 
-      "last_updated": "2016-10-13", 
-      "notification_sent": 0, 
-      "processed": true, 
-      "school": "Academy for Science and Design", 
-      "school_year": 2016, 
-      "staff": {
-        "id": 304, 
-        "name": "Douglass Belley"
-      }, 
-      "student": {
-        "grade": 11, 
-        "id": 426, 
-        "name": "Stephan Lensky"
-      }, 
-      "violation": "Eating in classroom"
+      // see below for referrals format
     },
     ...
   ]
+  // marking period information
+}
+```
+
+### referrals/<int:id>
+
+Returns information about a single referral (that was given during the selected year). If there is no referral with the id given, a status code of 404 will be returned.
+
+```javascript
+{
+  "creation_date": "2016-10-13", 
+  "display": true, 
+  "entry_date": "2016-10-13", 
+  "id": 3168, 
+  "last_updated": "2016-10-13", 
+  "notification_sent": 0, 
+  "processed": true, 
+  "school": "Academy for Science and Design", 
+  "school_year": 2016, 
+  "staff": {
+    "id": 304, 
+    "name": "Douglass Belley"
+  }, 
+  "student": {
+    "grade": 11, 
+    "id": 426, 
+    "name": "Stephan Lensky"
+  }, 
+  "violation": "Eating in classroom"
   // marking period information
 }
 ```

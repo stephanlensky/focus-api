@@ -123,7 +123,27 @@ def portal():
     r = requests.get(urls['portal'], cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
-    return jsonify(parser.parse_portal(r.text))
+    return jsonify(dict(parser.parse_portal(r.text), **parser.get_marking_periods(r.text)))
+
+@app.route(api_url + 'courses', methods = ['GET'])
+def courses():
+    if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
+        abort(403)
+    r = requests.get(urls['portal'] + str(id), cookies=request.cookies)
+    if r.status_code != 200:
+        abort(500)
+    portal = parser.parse_portal(r.text)
+    d = {}
+    d['courses'] = []
+    for c in portal['courses']:
+        r = requests.get(urls['course_pre'] + str(c['id']), cookies=request.cookies)
+        if r.status_code != 200:
+            abort(500)
+        parsed = parser.parse_course(r.text)
+        parsed['days'] = c['days']
+        d['courses'].append(parsed)
+
+    return jsonify(dict(d, **parser.get_marking_periods(r.text)))
 
 @app.route(api_url + 'courses/<int:id>', methods = ['GET'])
 def course(id):
@@ -143,7 +163,7 @@ def schedule():
     r = requests.get(urls['schedule'], cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
-    return jsonify(parser.parse_schedule(r.text))
+    return jsonify(dict(parser.parse_schedule(r.text), **parser.get_marking_periods(r.text)))
 
 @app.route(api_url + 'calendar/<int:year>', methods = ['GET'])
 def calendar_by_year(year):
@@ -164,7 +184,7 @@ def calendar_by_year(year):
             abort(500)
         parsed = parser.parse_calendar(r.text)
         d['events'] = d['events'] + parsed['events']
-    return jsonify(d)
+    return jsonify(dict(d), **parser.get_marking_periods(r.text))
 
 @app.route(api_url + 'calendar/<int:year>/<int:month>', methods = ['GET'])
 def calendar_by_month(year, month):
@@ -177,7 +197,7 @@ def calendar_by_month(year, month):
     r = requests.get(urls['calendar_pre'] + query, cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
-    return jsonify(parser.parse_calendar(r.text))
+    return jsonify(dict(parser.parse_calendar(r.text), **parser.get_marking_periods(r.text)))
 
 @app.route(api_url + 'calendar/<int:year>/<int:month>/<int:day>', methods = ['GET'])
 def calendar_by_day(year, month, day):
@@ -193,7 +213,7 @@ def calendar_by_day(year, month, day):
     parsed = parser.parse_calendar(r.text)
     parsed['events'] = [i for i in parsed['events'] if parse(i['date']).day == day]
     parsed['day'] = day
-    return jsonify(parsed)
+    return jsonify(dict(parsed, **parser.get_marking_periods(r.text)))
 
 @app.route(api_url + 'calendar/assignments/<int:id>', methods = ['GET'])
 def holiday(id):
@@ -231,7 +251,7 @@ def demographic():
     ret = parser.parse_demographic(r.text)
     img = requests.get(urls['tld'] + ret[1].replace('../', ''), cookies=request.cookies)
     ret[0]['picture'] = base64.b64encode(img.content).decode('utf-8')
-    return jsonify(ret[0])
+    return jsonify(dict(ret[0], **parser.get_marking_periods(r.text)))
 
 @app.route(api_url + 'referrals', methods = ['GET'])
 def referrals():
@@ -240,7 +260,26 @@ def referrals():
     r = requests.get(urls['referrals'], cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
-    return jsonify(parser.parse_referrals(r.text))
+    return jsonify(dict(parser.parse_referrals(r.text), **parser.get_marking_periods(r.text)))
+
+@app.route(api_url + 'referrals/<int:id>', methods = ['GET'])
+def referral(id):
+    if not auth.is_valid_session(request.cookies.get('PHPSESSID')):
+        abort(403)
+    r = requests.get(urls['referrals'], cookies=request.cookies)
+    if r.status_code != 200:
+        abort(500)
+
+    parsed = parser.parse_referrals(r.text)
+    target = None
+    for ref in parsed['referrals']:
+        if ref['id'] == id:
+            target = ref
+            break
+    if target == None:
+        abort(404)
+
+    return jsonify(dict(target, **parser.get_marking_periods(r.text)))
 
 if __name__ == '__main__':
     app.run(debug=True)
