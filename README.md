@@ -146,7 +146,7 @@ Updates the marking period given a year and marking period id. An additional `re
 
 The JSON returned will be equivalent to sending a GET request to `course/15206`. However, doing both the marking period change and redirection in one step takes less time.
 
-### /api/v1/portal
+### portal
 
 **Accepts: GET**
 
