@@ -48,7 +48,7 @@ pip3 install flask requests beautifulsoup4 python-dateutil
 Next, clone the repository and run the `app.py` to start the server. In it's default configuration, it will host itself locally on your machine at http://127.0.0.1:5000/api/v2.
 
 ```bash
-git clone https://github.com/dvshka/focus-api.git && cd focus-api
+git clone https://github.com/kidcontact/focus-api.git && cd focus-api
 python3 focus/app.py
 ```
 
