@@ -12,6 +12,7 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 - Demographic
 - Schedule
 - Referrals
+- Address information
 
 **In Progress**
 
@@ -19,7 +20,6 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 
 **Planned**
 
-- Address information
 - Absences
 - Final grades and GPA
 
@@ -387,7 +387,42 @@ Returns basic information about the student account and the student's most recen
 }
 ```
 
+### address
+
+**Accepts: GET**
+
+Retrieves information from the address page in Focus. This includes address/contact information for the student and any contacts (usually parents) associated with the student. As with the demographic section, some information has been redacted.
+
+```javascript
+{
+  "address": [REDACTED],
+  "city": "Nashua",
+  // some fields may not be present for all contacts, make sure to check
+  "contacts": [
+    {
+      "address": [REDACATED],
+      "cell_phone": [REDACTED],
+      "city": "Nashua",
+      "email": [REDACTED],
+      "home_phone": [REDACTED],
+      "name": [REDACTED],
+      "private_email": [REDACTED],
+      "relationship": "mother",
+      "state": "NH",
+      "zip": "03063"
+    },
+    ...
+  ],
+  "phone": [REDACTED],
+  "state": "NH",
+  "zip": "03063"
+  // marking period information
+}
+```
+
 ### referrals
+
+**Accepts: GET**
 
 Returns a list of referrals that the student has receieved during the current school year. If the student has no referrals, the `referrals` array is empty and only the marking period information is returned.
 
@@ -404,6 +439,8 @@ Returns a list of referrals that the student has receieved during the current sc
 ```
 
 ### referrals/<int:id>
+
+**Accepts: GET**
 
 Returns information about a single referral (that was given during the selected year). If there is no referral with the id given, a status code of 404 will be returned.
 

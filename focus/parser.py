@@ -378,6 +378,55 @@ def parse_demographic(demographic):
 
     return d, picture_url
 
+def parse_address(address):
+    address = BeautifulSoup(address, 'html.parser')
+    d = {}
+
+    tr = address.find('table', id='main_address_holder').find('table').find_all('tr')
+    d['address'] = tr[0].text.split(': ')[1]
+    if tr[1].text.split(': ')[1] != ' \u00a0-\u00a0':
+        d['apt'] = tr[1].text.split(': ')[1]
+    d['city'] = tr[2].text.split(': ')[1]
+    d['state'] = tr[3].text.split(': ')[1]
+    d['zip'] = tr[4].text.split(': ')[1]
+    d['phone'] = tr[5].text.split(': ')[1].replace('-', '')
+
+    contact_names = address.find_all('td', attrs={'title': 'Click to edit this contact.'})
+    contact_contactinfo = address.find_all('table', attrs={'colspan': '2'})
+    contact_addresses = address.find_all('td', attrs={'rowspan': '2'})
+
+    contacts = []
+    for n, c, l in zip(contact_names, contact_contactinfo, contact_addresses):
+        p = {}
+
+        td = n.find_all('td')
+        p['relationship'] = td[0].text.strip().lower()
+        p['name'] = td[1].text + ' ' + td[2].text
+        p['email'] = td[3].text
+
+        tr = c.find_all('tr')
+        for r in tr:
+            td = r.find_all('td')
+            if td[0].text == 'Cell Phone' or td[0].text == 'Cell':
+                p['cell_phone'] = td[1].text.replace(' ', '').replace('(', '').replace(')', '').replace('-', '')
+            elif td[0].text == 'Home Phone' or td[0].text == 'Home':
+                p['home_phone'] = td[1].text.replace(' ', '').replace('(', '').replace(')', '').replace('-', '')
+            elif td[0].text == 'Private Email':
+                p['private_email'] = td[1].text
+
+        tr = l.find_all('tr')
+        p['address'] = tr[0].find_all('td')[1].text
+        if tr[1].find_all('td')[1].text != '-':
+            p['apt'] = tr[1].find_all('td')[1].text
+        p['city'] = tr[2].find_all('td')[1].text
+        p['state'] = tr[3].find_all('td')[1].text
+        p['zip'] = tr[4].find_all('td')[1].text
+
+        contacts.append(p)
+    d['contacts'] = contacts
+
+    return d
+
 # parse the referrals page
 def parse_referrals(referrals):
     referrals = BeautifulSoup(referrals, 'html.parser')
