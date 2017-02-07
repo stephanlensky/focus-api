@@ -31,6 +31,10 @@ def get_marking_periods(page):
         'available_mp_ids': available_mps
     }
 
+def get_student_id(page):
+    page = BeautifulSoup(page, 'html.parser')
+    loc = page.text.find('"student_id":')
+    return page.text[loc + 14:loc + 17]
 
 # parse the homepage of Focus (the portal)
 def parse_portal(portal):
