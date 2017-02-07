@@ -449,21 +449,15 @@ Returns information about a single referral (that was given during the selected 
   "creation_date": "2016-10-13", 
   "display": true, 
   "entry_date": "2016-10-13", 
+  "grade": 11,
   "id": 3168, 
   "last_updated": "2016-10-13", 
+  "name": "Stephan Lensky",
   "notification_sent": 0, 
   "processed": true, 
   "school": "Academy for Science and Design", 
   "school_year": 2016, 
-  "staff": {
-    "id": 304, 
-    "name": "Douglass Belley"
-  }, 
-  "student": {
-    "grade": 11, 
-    "id": 426, 
-    "name": "Stephan Lensky"
-  }, 
+  "teacher": "Douglass Belley", 
   "violation": "Eating in classroom"
   // marking period information
 }

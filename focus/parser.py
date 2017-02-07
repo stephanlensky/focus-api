@@ -478,15 +478,10 @@ def parse_referrals(referrals):
             student_name = BeautifulSoup(records[id]['_student'], 'html.parser').text.strip().split(', ')
             staff_name = records[id]['_staff_name'].split(',')
 
-            ref['student'] = {
-                'grade': int(records[id]['_grade']),
-                'name': student_name[1] + ' ' + student_name[0],
-                'id': records[id]['STUDENT_ID']
-            }
-            ref['staff'] = {
-                'name': staff_name[1] + ' ' + staff_name[0],
-                'id': records[id]['STAFF_ID']
-            }
+            ref['teacher'] = staff_name[1] + ' ' + staff_name[0]
+            ref['name'] = student_name[1] + ' ' + student_name[0]
+            ref['grade'] = int(records[id]['_grade'])
+            
             d['referrals'].append(ref)
 
     return d
