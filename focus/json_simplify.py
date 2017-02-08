@@ -61,7 +61,8 @@ def simplify_final_grades(records, type):
         s['grade_level'] = int(field['gradelevel_title'])
         s['last_updated'] = field['last_updated_date']
         s['location'] = field['location_title']
-        s['semester'] = int(field['_mp_title'].split(' ')[1])
+        s['mp_id'] = int(field['marking_period_id'])
+        s['mp_name'] = field['_mp_title']
         if field['comment']:
             s['comment'] = field['comment']
 
