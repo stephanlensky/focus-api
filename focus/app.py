@@ -397,7 +397,7 @@ def exams():
 
     return jsonify(d)
 
-@app.route(api_url + 'exams/<int:id>')
+@app.route(api_url + 'exams/<int:id>', methods = ['GET'])
 def exam(id):
     s = find_session(request.cookies.get('PHPSESSID'), sessions)
     if s is None or session_expired(s):
