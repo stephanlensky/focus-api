@@ -481,7 +481,7 @@ def parse_referrals(referrals):
             ref['teacher'] = staff_name[1] + ' ' + staff_name[0]
             ref['name'] = student_name[1] + ' ' + student_name[0]
             ref['grade'] = int(records[id]['_grade'])
-            
+
             d['referrals'].append(ref)
 
     return d

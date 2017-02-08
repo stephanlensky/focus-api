@@ -13,6 +13,7 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 - Schedule
 - Referrals
 - Address information
+- Term exam grades
 
 **In Progress**
 
@@ -21,7 +22,7 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 **Planned**
 
 - Absences
-- Final grades and GPA
+- Overall term grades
 
 **Unplanned**
 
@@ -460,5 +461,53 @@ Returns information about a single referral (that was given during the selected 
   "teacher": "Douglass Belley", 
   "violation": "Eating in classroom"
   // marking period information
+}
+```
+
+### exams
+
+**Accepts: GET**
+
+Retrieves a list of all term exams that the student has taken. If a field is blank in Focus, it may not be present in the return for this endpoint. Additionally, this endpoint does not include marking period information.
+
+```javascript
+{
+  "exams": [
+    {
+      // see below for exam format
+    },
+    ...
+  ]
+}
+```
+
+### exams/<int:id>
+
+**Accepts: GET**
+
+Retrieves information about a single exam. As with the above, not all fields will be present for all exams and marking period information will not be included.
+
+```javascript
+{
+  "affects_gpa": true, 
+  "course_id": 10788, 
+  "course_num": "MA3300", 
+  "credits": 1.0, 
+  "credits_earned": 1.0, 
+  "gpa_points": 3.0, 
+  "grade_level": 10, 
+  "id": 207044, 
+  "last_updated": "2016-06-20", 
+  "last_updated_by": "Rosy Gandhi", 
+  "letter_grade": "B", 
+  "location": "Academy for Science and Design", 
+  "name": "Precalculus Honors", 
+  "percent_grade": 85, 
+  "scale": "Honors & AP", 
+  "semester": 2, 
+  "subject": "Math", 
+  "syear": 2015, 
+  "teacher": "Rosy Gandhi", 
+  "weighted_gpa_points": 3.5
 }
 ```
