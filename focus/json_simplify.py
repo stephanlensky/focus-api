@@ -1,3 +1,42 @@
+from bs4 import BeautifulSoup
+
+def simplify_referrals(records):
+    d = {'referrals': []}
+    for id in records:
+        ref = {}
+        for k in records[id]:
+            if not k.startswith('CUSTOM_'):
+                continue
+            violation = records[id][k]
+            if violation is not None and violation != 'Other':
+                violation = str(records[id][k])
+                if violation.startswith("['', '"):
+                    violation = violation[6:-6]
+                ref['violation'] = violation
+        ref['creation_date'] = records[id]['CREATION_DATE']
+        ref['display'] = records[id]['DISPLAY'] == 'Y'
+        ref['entry_date'] = records[id]['ENTRY_DATE']
+        ref['last_updated'] = records[id]['LAST_UPDATED']
+        ref['notification_sent'] = records[id]['NOTIFICATION_SENT']
+        ref['processed'] = records[id]['PROCESSED'] == 'Y'
+        ref['id'] = int(id)
+        if records[id]['SUSPENSION_BEGIN']:
+            ref['suspension_begin'] = records[id]['SUSPENSION_BEGIN']
+            ref['suspension_end'] = records[id]['SUSPENSION_END']
+        ref['school_year'] = records[id]['SYEAR']
+        ref['school'] = records[id]['_school']
+
+        student_name = BeautifulSoup(records[id]['_student'], 'html.parser').text.strip().split(', ')
+        staff_name = records[id]['_staff_name'].split(',')
+
+        ref['teacher'] = staff_name[1] + ' ' + staff_name[0]
+        ref['name'] = student_name[1] + ' ' + student_name[0]
+        ref['grade'] = int(records[id]['_grade'])
+
+        d['referrals'].append(ref)
+
+    return d
+
 def simplify_final_grades(records, type):
     d = {type: []}
     for field in records['result']['grades'].values():
