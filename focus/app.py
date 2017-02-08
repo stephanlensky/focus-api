@@ -391,5 +391,195 @@ def exam(id):
             return jsonify(e)
     abort(404)
 
+@app.route(api_url + 'final_grades', methods = ['GET'])
+def final_grades():
+    s = find_session(request.cookies.get('PHPSESSID'), sessions)
+    if s is None or session_expired(s):
+        abort(403)
+
+    # calling the API does not work if you don't get this page first (focus plz)
+    if not s.can_invoke_api:
+        r = requests.get(urls['final_grades'], cookies=request.cookies)
+        s.can_invoke_api = True
+        s.student_id = parser.get_student_id(r.text)
+
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    data = {
+        'accessID': s.student_id,
+        'api': 'finalGrades',
+        'method': 'requestGrades',
+        'modname': 'Grades/StudentRCGrades.php',
+        'arguments[]': '-1',
+        'arguments[1][**FIRST-REQUEST**]': 'true',
+    }
+    sign_request(data)
+
+    r = requests.post(urls['api'], cookies=request.cookies, data=data, headers=headers)
+    if r.status_code != 200:
+        abort(500)
+    d = simplify_final_grades(r.json(), 'grades')
+
+    return jsonify(d)
+
+@app.route(api_url + 'final_grades/<int:id>', methods = ['GET'])
+def final_grade(id):
+    s = find_session(request.cookies.get('PHPSESSID'), sessions)
+    if s is None or session_expired(s):
+        abort(403)
+
+    # calling the API does not work if you don't get this page first (focus plz)
+    if not s.can_invoke_api:
+        r = requests.get(urls['final_grades'], cookies=request.cookies)
+        s.can_invoke_api = True
+        s.student_id = parser.get_student_id(r.text)
+
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    data = {
+        'accessID': s.student_id,
+        'api': 'finalGrades',
+        'method': 'requestGrades',
+        'modname': 'Grades/StudentRCGrades.php',
+        'arguments[]': '-1',
+        'arguments[1][**FIRST-REQUEST**]': 'true',
+    }
+    sign_request(data)
+
+    r = requests.post(urls['api'], cookies=request.cookies, data=data, headers=headers)
+    if r.status_code != 200:
+        abort(500)
+    d = simplify_final_grades(r.json(), 'grades')
+
+    for g in d['grades']:
+        if g['id'] == id:
+            return jsonify(g)
+    abort(404)
+
+@app.route(api_url + 'semester_grades', methods = ['GET'])
+def semester_grades():
+    s = find_session(request.cookies.get('PHPSESSID'), sessions)
+    if s is None or session_expired(s):
+        abort(403)
+
+    # calling the API does not work if you don't get this page first (focus plz)
+    if not s.can_invoke_api:
+        r = requests.get(urls['final_grades'], cookies=request.cookies)
+        s.can_invoke_api = True
+        s.student_id = parser.get_student_id(r.text)
+
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    data = {
+        'accessID': s.student_id,
+        'api': 'finalGrades',
+        'method': 'requestGrades',
+        'modname': 'Grades/StudentRCGrades.php',
+        'arguments[]': 'all_SEM',
+        'arguments[1][**FIRST-REQUEST**]': 'true',
+    }
+    sign_request(data)
+
+    r = requests.post(urls['api'], cookies=request.cookies, data=data, headers=headers)
+    if r.status_code != 200:
+        abort(500)
+    d = simplify_final_grades(r.json(), 'grades')
+
+    return jsonify(d)
+
+@app.route(api_url + 'semester_grades/<int:id>', methods = ['GET'])
+def semester_grade(id):
+    s = find_session(request.cookies.get('PHPSESSID'), sessions)
+    if s is None or session_expired(s):
+        abort(403)
+
+    # calling the API does not work if you don't get this page first (focus plz)
+    if not s.can_invoke_api:
+        r = requests.get(urls['final_grades'], cookies=request.cookies)
+        s.can_invoke_api = True
+        s.student_id = parser.get_student_id(r.text)
+
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    data = {
+        'accessID': s.student_id,
+        'api': 'finalGrades',
+        'method': 'requestGrades',
+        'modname': 'Grades/StudentRCGrades.php',
+        'arguments[]': 'all_SEM',
+        'arguments[1][**FIRST-REQUEST**]': 'true',
+    }
+    sign_request(data)
+
+    r = requests.post(urls['api'], cookies=request.cookies, data=data, headers=headers)
+    if r.status_code != 200:
+        abort(500)
+    d = simplify_final_grades(r.json(), 'grades')
+
+    for g in d['grades']:
+        if g['id'] == id:
+            return jsonify(g)
+    abort(404)
+
+@app.route(api_url + 'quarter_grades', methods = ['GET'])
+def quarter_grades():
+    s = find_session(request.cookies.get('PHPSESSID'), sessions)
+    if s is None or session_expired(s):
+        abort(403)
+
+    # calling the API does not work if you don't get this page first (focus plz)
+    if not s.can_invoke_api:
+        r = requests.get(urls['final_grades'], cookies=request.cookies)
+        s.can_invoke_api = True
+        s.student_id = parser.get_student_id(r.text)
+
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    data = {
+        'accessID': s.student_id,
+        'api': 'finalGrades',
+        'method': 'requestGrades',
+        'modname': 'Grades/StudentRCGrades.php',
+        'arguments[]': 'all_QTR',
+        'arguments[1][**FIRST-REQUEST**]': 'true',
+    }
+    sign_request(data)
+
+    r = requests.post(urls['api'], cookies=request.cookies, data=data, headers=headers)
+    if r.status_code != 200:
+        abort(500)
+    d = simplify_final_grades(r.json(), 'grades')
+
+    return jsonify(d)
+
+@app.route(api_url + 'quarter_grades/<int:id>', methods = ['GET'])
+def quarter_grade(id):
+    s = find_session(request.cookies.get('PHPSESSID'), sessions)
+    if s is None or session_expired(s):
+        abort(403)
+
+    # calling the API does not work if you don't get this page first (focus plz)
+    if not s.can_invoke_api:
+        r = requests.get(urls['final_grades'], cookies=request.cookies)
+        s.can_invoke_api = True
+        s.student_id = parser.get_student_id(r.text)
+
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    data = {
+        'accessID': s.student_id,
+        'api': 'finalGrades',
+        'method': 'requestGrades',
+        'modname': 'Grades/StudentRCGrades.php',
+        'arguments[]': 'all_QTR',
+        'arguments[1][**FIRST-REQUEST**]': 'true',
+    }
+    sign_request(data)
+
+    r = requests.post(urls['api'], cookies=request.cookies, data=data, headers=headers)
+    if r.status_code != 200:
+        abort(500)
+    d = simplify_final_grades(r.json(), 'grades')
+
+    for g in d['grades']:
+        if g['id'] == id:
+            return jsonify(g)
+    abort(404)
+
+
 if __name__ == '__main__':
     app.run(debug=True)

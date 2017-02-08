@@ -14,6 +14,7 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 - Referrals
 - Address information
 - Term exam grades
+- Overall term grades
 
 **In Progress**
 
@@ -22,7 +23,6 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 **Planned**
 
 - Absences
-- Overall term grades
 
 **Unplanned**
 
@@ -485,7 +485,7 @@ Retrieves a list of all term exams that the student has taken. If a field is bla
 
 **Accepts: GET**
 
-Retrieves information about a single exam. As with the above, not all fields will be present for all exams and marking period information will not be included.
+Retrieves information about a single exam. As with the above, different fields may be present for different exams and marking period information will not be included.
 
 ```javascript
 {
@@ -510,5 +510,38 @@ Retrieves information about a single exam. As with the above, not all fields wil
   "syear": 2015, 
   "teacher": "Rosy Gandhi", 
   "weighted_gpa_points": 3.5
+}
+```
+
+### final_grades, final_grades/<int:id>, semester_grades, semester_grades/<int:id>, quarter_grades, quarter_grades/<int:id>
+
+**Accepts: GET**
+
+Gets information about overall grades for the duration of the class, by semester, and by quarter respectively. Information about specific grades can be retrieved by ID. These endpoints are all lumped together due to their very similar nature.
+
+```javascript
+{
+  "affects_gpa": true, 
+  "comment": "Good programmer! Likes to explore.", 
+  "course_id": 10853, 
+  "course_num": "CS4500", 
+  "credits": 1.0, 
+  "credits_earned": 1.0, 
+  "gpa_points": 3.7, 
+  "grade_level": 10, 
+  "id": 205253, 
+  "last_updated": "2016-06-20", 
+  "last_updated_by": "Madge Smith", 
+  "letter_grade": "A-", 
+  "location": "Academy for Science and Design", 
+  "mp_id": 313, 
+  "mp_name": "Semester 2", 
+  "name": "Advanced Computer Science", 
+  "percent_grade": 90, 
+  "scale": "Honors & AP", 
+  "subject": "Inspire", 
+  "syear": 2015, 
+  "teacher": "Madge Smith", 
+  "weighted_gpa_points": 4.2
 }
 ```
