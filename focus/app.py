@@ -6,6 +6,7 @@ import requests
 import base64
 from focus import parser
 from focus.session import Session, find_session, session_expired
+from focus.json_simplify import simplify_final_grades
 from calendar import monthrange
 from datetime import date
 import hmac
@@ -353,47 +354,7 @@ def exams():
     r = requests.post(urls['api'], cookies=request.cookies, data=data, headers=headers)
     if r.status_code != 200:
         abort(500)
-    r = r.json(); d = {'exams': []}
-
-    for exam in r['result']['grades'].values():
-        e = {}
-        e['id'] = int(exam['id'])
-        e['syear'] = int(exam['syear'])
-        e['name'] = exam['course_title']
-        e['affects_gpa'] = bool(exam['affects_gpa'])
-        if e['affects_gpa']:
-            e['gpa_points'] = float(exam['gpa_points'])
-            e['weighted_gpa_points'] = float(exam['weighted_gpa_points'])
-        e['teacher'] = exam['teacher'].split(', ')[1] + ' ' + exam['teacher'].split(', ')[0]
-        e['course_id'] = int(exam['course_period_id'])
-        e['course_num'] = exam['course_num']
-        e['percent_grade'] = int(exam['percent_grade'])
-        e['letter_grade'] = exam['grade_title']
-        if exam['grad_subject_short_name']:
-            e['subject'] = exam['grad_subject_short_name']
-        if exam['credits'] and exam['credits_earned']:
-            e['credits'] = float(exam['credits'])
-            e['credits_earned'] = float(exam['credits_earned'])
-        e['grade_level'] = int(exam['gradelevel_title'])
-        e['last_updated'] = exam['last_updated_date']
-        e['location'] = exam['location_title']
-        e['semester'] = int(exam['_mp_title'].split(' ')[1])
-        if exam['comment']:
-            e['comment'] = exam['comment']
-
-        if exam['last_updated_user'] in r['result']['defaults']['teacher']['1']:
-            last_updated_by = r['result']['defaults']['teacher']['1'][exam['last_updated_user']]['title'].split(', ')
-            e['last_updated_by'] = last_updated_by[1] + ' ' + last_updated_by[0]
-
-        grade_scales = r['result']['defaults']['grade_scale']
-        grade_scales.update(r['result']['domains']['grade_scale'])
-        grade_scale_id = exam['grade_scale_id']
-        for k in grade_scales:
-            for id in grade_scales[k]:
-                if id == grade_scale_id:
-                    e['scale'] = grade_scales[k][id]['title']
-
-        d['exams'].append(e)
+    d = simplify_final_grades(r.json(), 'exams')
 
     return jsonify(d)
 
@@ -423,50 +384,12 @@ def exam(id):
     r = requests.post(urls['api'], cookies=request.cookies, data=data, headers=headers)
     if r.status_code != 200:
         abort(500)
-    r = r.json();
-    d = {}
+    d = simplify_final_grades(r.json(), 'exams')
 
-    for exam in r['result']['grades'].values():
-        if int(exam['id']) == id:
-            d['id'] = int(exam['id'])
-            d['syear'] = int(exam['syear'])
-            d['name'] = exam['course_title']
-            d['affects_gpa'] = bool(exam['affects_gpa'])
-            if d['affects_gpa']:
-                d['gpa_points'] = float(exam['gpa_points'])
-                d['weighted_gpa_points'] = float(exam['weighted_gpa_points'])
-            d['teacher'] = exam['teacher'].split(', ')[1] + ' ' + exam['teacher'].split(', ')[0]
-            d['course_id'] = int(exam['course_period_id'])
-            d['course_num'] = exam['course_num']
-            d['percent_grade'] = int(exam['percent_grade'])
-            d['letter_grade'] = exam['grade_title']
-            if exam['grad_subject_short_name']:
-                d['subject'] = exam['grad_subject_short_name']
-            if exam['credits'] and exam['credits_earned']:
-                d['credits'] = float(exam['credits'])
-                d['credits_earned'] = float(exam['credits_earned'])
-            d['grade_level'] = int(exam['gradelevel_title'])
-            d['last_updated'] = exam['last_updated_date']
-            d['location'] = exam['location_title']
-            d['semester'] = int(exam['_mp_title'].split(' ')[1])
-            if exam['comment']:
-                d['comment'] = exam['comment']
-
-            if exam['last_updated_user'] in r['result']['defaults']['teacher']['1']:
-                last_updated_by = r['result']['defaults']['teacher']['1'][exam['last_updated_user']]['title'].split(', ')
-                d['last_updated_by'] = last_updated_by[1] + ' ' + last_updated_by[0]
-
-            grade_scales = r['result']['defaults']['grade_scale']
-            grade_scales.update(r['result']['domains']['grade_scale'])
-            grade_scale_id = exam['grade_scale_id']
-            for k in grade_scales:
-                for id in grade_scales[k]:
-                    if id == grade_scale_id:
-                        d['scale'] = grade_scales[k][id]['title']
-    if d:
-        return jsonify(d)
-    else:
-        abort(404)
+    for e in d['exams']:
+        if e['id'] == id:
+            return jsonify(e)
+    abort(404)
 
 if __name__ == '__main__':
     app.run(debug=True)
