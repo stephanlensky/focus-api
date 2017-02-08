@@ -378,6 +378,8 @@ def exams():
         e['last_updated'] = exam['last_updated_date']
         e['location'] = exam['location_title']
         e['semester'] = int(exam['_mp_title'].split(' ')[1])
+        if exam['comment']:
+            e['comment'] = exam['comment']
 
         if exam['last_updated_user'] in r['result']['defaults']['teacher']['1']:
             last_updated_by = r['result']['defaults']['teacher']['1'][exam['last_updated_user']]['title'].split(', ')
@@ -447,6 +449,8 @@ def exam(id):
             d['last_updated'] = exam['last_updated_date']
             d['location'] = exam['location_title']
             d['semester'] = int(exam['_mp_title'].split(' ')[1])
+            if exam['comment']:
+                d['comment'] = exam['comment']
 
             if exam['last_updated_user'] in r['result']['defaults']['teacher']['1']:
                 last_updated_by = r['result']['defaults']['teacher']['1'][exam['last_updated_user']]['title'].split(', ')
