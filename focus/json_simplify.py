@@ -53,8 +53,6 @@ def simplify_final_grades(records, type):
         s['course_num'] = field['course_num']
         s['percent_grade'] = int(field['percent_grade'])
         s['letter_grade'] = field['grade_title']
-        if field['grad_subject_short_name']:
-            s['subject'] = field['grad_subject_short_name']
         if field['credits'] and field['credits_earned']:
             s['credits'] = float(field['credits'])
             s['credits_earned'] = float(field['credits_earned'])
@@ -65,6 +63,9 @@ def simplify_final_grades(records, type):
         s['mp_name'] = field['_mp_title']
         if field['comment']:
             s['comment'] = field['comment']
+
+        if field['grad_subject_id']:
+            s['subject'] = records['result']['defaults']['grad_subject']['1'][field['grad_subject_id']]['title']
 
         if field['last_updated_user'] in records['result']['defaults']['teacher']['1']:
             last_updated_by = records['result']['defaults']['teacher']['1'][field['last_updated_user']]['title'].split(', ')

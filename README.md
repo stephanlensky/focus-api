@@ -539,7 +539,7 @@ Gets information about overall grades for the duration of the class, by semester
   "name": "Advanced Computer Science", 
   "percent_grade": 90, 
   "scale": "Honors & AP", 
-  "subject": "Inspire", 
+  "subject": "Areas of Specialization & Inspiration", 
   "syear": 2015, 
   "teacher": "Madge Smith", 
   "weighted_gpa_points": 4.2
