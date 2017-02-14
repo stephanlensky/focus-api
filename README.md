@@ -6,6 +6,7 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 
 - Authentication
 - Setting semester/year
+- Portal
 - Courses
 - Calendar (monthly)
 - Detailed information about events from calendar
@@ -15,10 +16,6 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 - Address information
 - Term exam grades
 - Overall term grades
-
-**In Progress**
-
-- Portal (missing alerts)
 
 **Planned**
 
@@ -161,7 +158,7 @@ Returns a JSON object in the following format with information from the portal p
       "date": '2016-12-14'
     },
     ...
-  ]
+  ],
   "courses": [
     {
       "days": "MWH", 
@@ -173,7 +170,22 @@ Returns a JSON object in the following format with information from the portal p
       "teacher": "Douglass Adam Belley"
     }, 
     ...
-    // marking period information
+  ],
+  "upcoming": [
+    {
+      "assignments": [
+        {
+          "due": "2017-02-14T00:00:00", 
+          "name": "Calorie Worksheet"
+        },
+        ...
+       ],
+       "course_id": 11131
+    },
+    ...
+  ],
+  "alert": "You have been absent 9 periods" // may not be present
+  // marking period information
 }
 ```
 

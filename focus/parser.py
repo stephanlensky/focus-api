@@ -88,7 +88,38 @@ def parse_portal(portal):
         event['date'] = date(year, month, day).isoformat()
         events.append(event)
 
-    return {'events': events, 'courses': courses}
+    alerts = portal.find('td', {'class': 'portal_block_Alerts'}).find('td', {'class': 'BoxContent'})
+    upcoming = []
+    li = alerts.find('ul').find_all('li')
+    for i in range(0, len(li), 2):
+        u = {}
+        period = int(li[i].text.split(' - ')[0][-1:])
+        for c in courses:
+            if c['period'] == period:
+                u['course_id'] = c['id']
+                break
+
+        u['assignments'] = []
+        for tr in li[i + 1].find_all('tr'):
+            a = {}
+            td = tr.find_all('td')
+            a['name'] = td[0].text.replace('\n', '')
+            a['due'] = parse(td[1].text.strip()[5:]).isoformat()
+            u['assignments'].append(a)
+
+        upcoming.append(u)
+
+    d = {
+        'events': events,
+        'courses': courses,
+        'upcoming': upcoming
+    }
+
+    alert_text = alerts.find('a')
+    if alert_text:
+        d['alert'] = alert_text.text.replace('\n', '').strip()
+
+    return d
 
 
 # parse a course page
