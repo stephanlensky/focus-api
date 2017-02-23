@@ -13,13 +13,10 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 - Demographic
 - Schedule
 - Referrals
+- Absences
 - Address information
 - Term exam grades
 - Overall term grades
-
-**Planned**
-
-- Absences
 
 **Unplanned**
 
@@ -472,6 +469,63 @@ Returns information about a single referral (that was given during the selected 
   "school_year": 2016, 
   "teacher": "Douglass Belley", 
   "violation": "Eating in classroom"
+  // marking period information
+}
+```
+
+### absences
+
+**Accepts: GET**
+
+Returns information from the table in the "Absences" section of Focus.
+
+```javascript
+{
+  "absences": [
+    {
+      "date": "2017-02-22T00:00:00", 
+      "periods": [
+        {
+          "days": "MWH", 
+          "last_updated": "2017-02-22T08:19:21", 
+          "last_updated_by": "Douglass Adam Belley", 
+          "name": "Learning Studios", 
+          "period": 1, 
+          "status": "absent", 
+          "teacher": "Douglass Adam Belley"
+        }, 
+        {
+          "period": 2, 
+          "status": "unset"
+        }, 
+        {
+          "days": "MWH", 
+          "last_updated": "2017-02-22T10:17:34", 
+          "last_updated_by": "Patricia Ann Sockey", 
+          "name": "Humanities III (LA)", 
+          "period": 3, 
+          "status": "absent", 
+          "teacher": "Patricia Ann Sockey"
+        }, 
+        {
+          "period": 4, 
+          "status": "unset"
+        }, 
+        {
+          "period": "advisory", 
+          "status": "absent"
+        }, 
+        {
+          "period": 5, 
+          "status": "unset"
+        }, 
+        ...
+      ], 
+      "status": "present"
+    }, 
+    ...
+  ],
+  "days_possible": 106,
   // marking period information
 }
 ```

@@ -33,7 +33,8 @@ urls = {
     'referrals': tld + 'focus/Modules.php?force_package=SIS&modname=Discipline/Referrals.php',
     'address': tld + 'focus/Modules.php?modname=Students/Student.php&include=Address',
     'final_grades': tld + 'focus/Modules.php?force_package=SIS&modname=Grades/StudentRCGrades.php',
-    'api': tld + 'focus/API/APIEndpoint.php'
+    'api': tld + 'focus/API/APIEndpoint.php',
+    'absences': tld + 'focus/Modules.php?force_package=SIS&modname=Attendance/StudentSummary.php'
 }
 
 sessions = []
@@ -579,6 +580,16 @@ def quarter_grade(id):
         if g['id'] == id:
             return jsonify(g)
     abort(404)
+
+@app.route(api_url + 'absences', methods = ['GET'])
+def absences():
+    s = find_session(request.cookies.get('PHPSESSID'), sessions)
+    if s is None or session_expired(s):
+        abort(403)
+    r = requests.get(urls['absences'], cookies=request.cookies)
+    if r.status_code != 200:
+        abort(500)
+    return jsonify(dict(parser.parse_absences(r.text), **parser.get_marking_periods(r.text)))
 
 
 if __name__ == '__main__':

@@ -485,3 +485,73 @@ def parse_referrals(referrals):
         d = simplify_referrals(records)
 
     return d
+
+def parse_absences(absences):
+    absences = BeautifulSoup(absences, 'html.parser')
+    d = {}
+
+    start = absences.text.find('Total Full Days Possible: ') + len('Total Full Days Possible: ')
+    end = start + absences.text[start:].find('Total Full Days Attended')
+    d['days_possible'] = int(absences.text[start:end])
+
+    headers = absences.find_all('td', attrs={'class': 'LO_header'})
+    period_names = []
+    for h in headers[2:]:
+        if h.parent.parent.name != 'thead':
+            break
+        period_names.append(h.text.lower())
+
+    missed = []
+    count = 1
+    tr = absences.find('tr', id='LOy_row' + str(count))
+    while tr:
+        a = {}
+        fields = tr.find_all('td', {'class': 'LO_field'})
+
+        if len(fields):
+            a['date'] = parse(fields[0].text).isoformat()
+            a['status'] = fields[1].text.lower().split(' ')[0]
+
+            a['periods'] = []
+            for p, n in zip(fields[2:], period_names):
+                c = {}
+                c['period'] = int(n) if n.isdigit() else n
+                tooltip = p.find('div')
+                if tooltip:
+                    tooltip = tooltip.attrs['data-tooltip'].split('<BR>')
+                    course_info = tooltip[0].split(' - ')
+                    c['name'] = course_info[0]
+                    c['days'] = course_info[2]
+
+                    # focus doesn't account for middle names properly in this page, so teachers without
+                    # middle names have two spaces in between their first and last!
+                    c['teacher'] = course_info[4].replace('  ', ' ')
+
+                    c['last_updated'] = parse(tooltip[1][len('Last Modified: '):]).isoformat()
+                    name = tooltip[2].strip().split(', ')
+                    c['last_updated_by'] = name[1] + ' ' + name[0]
+
+                if p.text.strip() == '':
+                    c['status'] = 'unset'
+                elif p.text == 'A' or p.text == '-':
+                    c['status'] = 'absent'
+                elif p.text == 'E':
+                    c['status'] = 'excused'
+                elif p.text == 'L':
+                    c['status'] = 'late'
+                elif p.text == 'T':
+                    c['status'] = 'tardy'
+                elif p.text == 'O':
+                    c['status'] = 'offsite'
+                else:
+                    c['status'] = 'misc'
+
+                a['periods'].append(c)
+
+            missed.append(a)
+
+        count += 1
+        tr = absences.find('tr', id='LOy_row' + str(count))
+    d['absences'] = missed
+
+    return d
