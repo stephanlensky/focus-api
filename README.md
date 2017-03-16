@@ -1,6 +1,6 @@
 # Focus Student Information System API
 
-A simple RESTful Flask server to retrieve and parse pages from the Focus for Schools Student Information System (SIS). Although it was created for the [Academy for Science and Design](http://www.asdnh.org/), this service should work for any school running the Focus SIS (see [supporting additional schools](#supporting-additional-schools) for details). The project is currently still in early development, so there are a bunch of bugs and the module does not yet have an installer.
+A simple RESTful Flask server to retrieve and parse pages from the Focus for Schools Student Information System (SIS). Although it was created for the [Academy for Science and Design](http://www.asdnh.org/), this service should work for any school running the Focus SIS (see [supporting additional schools](#supporting-additional-schools) for details).
 
 **Complete**
 
@@ -64,7 +64,7 @@ urls = {
 }
 ```
 
-As you can see, all URLs are build dynamically from a given top level domain. It may be enough to simply change the TLD, but if your implementation of Focus differs slightly, the URLs in `urls` may also need to be modified. Additionally, the session timeout in `focus/auth.py` may need to be changed to match your school's settings. If there are other bugs related to your specific school, please open an issue [here](https://github.com/dvshka/focus-api/issues) and I will look into it as soon as possible.
+As you can see, all URLs are build dynamically from a given top level domain. It may be enough to simply change the TLD, but if your implementation of Focus differs slightly, the URLs in `urls` may also need to be modified. Additionally, the session timeout in `focus/auth.py` may need to be changed to match your school's settings. If there are other bugs related to your specific school, please open an issue [here](https://github.com/kidcontact/focus-api/issues) and I will look into it as soon as possible.
 
 ## Client Documentation
 
