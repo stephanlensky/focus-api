@@ -90,24 +90,27 @@ def parse_portal(portal):
 
     alerts = portal.find('td', {'class': 'portal_block_Alerts'}).find('td', {'class': 'BoxContent'})
     upcoming = []
-    li = alerts.find('ul').find_all('li')
-    for i in range(0, len(li), 2):
-        u = {}
-        period = int(li[i].text.split(' - ')[0][-1:])
-        for c in courses:
-            if c['period'] == period:
-                u['course_id'] = c['id']
-                break
 
-        u['assignments'] = []
-        for tr in li[i + 1].find_all('tr'):
-            a = {}
-            td = tr.find_all('td')
-            a['name'] = td[0].text.replace('\n', '')
-            a['due'] = parse(td[1].text.strip()[5:]).isoformat()
-            u['assignments'].append(a)
+    ul = alerts.find('ul')
+    if ul:
+        li = ul.find_all('li')
+        for i in range(0, len(li), 2):
+            u = {}
+            period = int(li[i].text.split(' - ')[0][-1:])
+            for c in courses:
+                if c['period'] == period:
+                    u['course_id'] = c['id']
+                    break
 
-        upcoming.append(u)
+            u['assignments'] = []
+            for tr in li[i + 1].find_all('tr'):
+                a = {}
+                td = tr.find_all('td')
+                a['name'] = td[0].text.replace('\n', '')
+                a['due'] = parse(td[1].text.strip()[5:]).isoformat()
+                u['assignments'].append(a)
+
+            upcoming.append(u)
 
     d = {
         'events': events,

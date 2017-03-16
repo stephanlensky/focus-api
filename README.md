@@ -129,7 +129,17 @@ Returned:
 
 ###### PUT
 
-Updates the marking period given a year and marking period id. An additional `redirect` parameter may be given to specify the page returned after changing the marking period. Valid redirect values follow the same format as API urls. So for example, to retrieve the new portal, send `portal`. To retrieve course 15206, send `course/15206`. Redirection to a url under `calendar` is not supported. When no redirect is specified, the portal of the new marking period will be provided.
+Updates the marking period given a year and marking period id. An additional `redirect` parameter may be given to specify the page returned after changing the marking period. Valid redirect values follow the same format as API urls. So for example, to retrieve the new portal, send `portal`. To retrieve course 15206, send `course/15206`. Keep in mind, not all pages can be redirected to. The list of valid redirects are as follows:
+
+- portal
+- course/<int:id>
+- schedule
+- demographic
+- address
+- referrals
+- absences
+
+When no redirect is specified, the portal of the new marking period will be provided.
 
 ```javascript
 {

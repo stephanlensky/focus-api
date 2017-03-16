@@ -103,11 +103,15 @@ def session():
             abort(400)
 
         d = {'side_syear': request.json['year'], 'side_mp': request.json['mp_id']}
+        api_re = '(' + re.escape(api_url) + '){0,1}'
         valid_redirects = {
-            'PORTAL': api_url + '{0,1}portal',
-            'COURSE': api_url + '{0,1}courses\/[0-9]+',
-            'SCHEDULE': api_url + '{0,1}schedule',
-            'DEMOGRAPHIC': api_url + '{0,1}demographic'
+            'PORTAL': api_re + 'portal',
+            'COURSE': api_re + 'courses\/[0-9]+',
+            'SCHEDULE': api_re + 'schedule',
+            'DEMOGRAPHIC': api_re + 'demographic',
+            'ADDRESS': api_re + 'address',
+            'REFERRALS': api_re + 'referrals',
+            'ABSENCES': api_re + 'absences'
         }
 
         if 'redirect' in request.json:
@@ -123,23 +127,47 @@ def session():
             if picked == 'COURSE':
                 id = redirect.split('/')[1]
                 r = requests.post(urls['course_pre'] + id, data=d, cookies=request.cookies)
+                if r.status_code != 200:
+                    abort(500)
                 parsed = parser.parse_course(r.text)
             elif picked == 'SCHEDULE':
                 r = requests.post(urls['schedule'], data=d, cookies=request.cookies)
+                if r.status_code != 200:
+                    abort(500)
                 parsed = parser.parse_schedule(r.text)
             elif picked == 'DEMOGRAPHIC':
                 r = requests.post(urls['demographic'], data=d, cookies=request.cookies)
+                if r.status_code != 200:
+                    abort(500)
                 parsed = parser.parse_demographic(r.text)
+            elif picked == 'ADDRESS':
+                r = requests.post(urls['address'], data=d, cookies=request.cookies)
+                if r.status_code != 200:
+                    abort(500)
+                parsed = parser.parse_address(r.text)
+            elif picked == 'REFERRALS':
+                r = requests.post(urls['referrals'], data=d, cookies=request.cookies)
+                if r.status_code != 200:
+                    abort(500)
+                parsed = parser.parse_referrals(r.text)
+            elif picked == 'ABSENCES':
+                r = requests.post(urls['absences'], data=d, cookies=request.cookies)
+                if r.status_code != 200:
+                    abort(500)
+                parsed = parser.parse_absences(r.text)
             else:
                 r = requests.post(urls['portal'], data=d, cookies=request.cookies)
+                if r.status_code != 200:
+                    abort(500)
                 parsed = parser.parse_portal(r.text)
         else:
             r = requests.post(urls['portal'], data=d, cookies=request.cookies)
+            if r.status_code != 200:
+                abort(500)
             parsed = parser.parse_portal(r.text)
 
-        if r.status_code != 200:
-            abort(500)
-        return jsonify(parsed)
+
+        return jsonify(dict(parsed, **parser.get_marking_periods(r.text)))
 
 
 @app.route(api_url + 'portal', methods = ['GET'])
@@ -183,7 +211,7 @@ def course(id):
         abort(404)
     elif r.status_code != 200:
         abort(500)
-    return jsonify(parser.parse_course(r.text))
+    return jsonify(dict(parser.parse_course(r.text), **parser.get_marking_periods(r.text)))
 
 @app.route(api_url + 'schedule', methods = ['GET'])
 def schedule():
