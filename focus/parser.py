@@ -52,6 +52,7 @@ def parse_portal(portal):
                 courses[id] = {}
 
             t = a.text.replace(u'\xa0', u' ') # replace non-breaking space with normal space
+            print(t)
             if t.find('%') > 0:
                 courses[id]['percent_grade'] = int(t[:t.find('%')])
                 courses[id]['letter_grade'] = t[t.find(' ') + 1:]
@@ -59,8 +60,8 @@ def parse_portal(portal):
                 data = t.split(" - ")
                 courses[id]['name'] = data[0]
                 courses[id]['period'] = int(data[1][len("Period "):])
-                courses[id]['days'] = data[2]
-                courses[id]['teacher'] = data[4]
+                courses[id]['days'] = data[-3]
+                courses[id]['teacher'] = data[-1]
             else:
                 continue
 
