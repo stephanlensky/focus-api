@@ -52,7 +52,6 @@ def parse_portal(portal):
                 courses[id] = {}
 
             t = a.text.replace(u'\xa0', u' ') # replace non-breaking space with normal space
-            print(t)
             if t.find('%') > 0:
                 courses[id]['percent_grade'] = int(t[:t.find('%')])
                 courses[id]['letter_grade'] = t[t.find(' ') + 1:]
@@ -217,6 +216,7 @@ def parse_course(course):
                 status = 'missing'
             elif td[2].text == "Extra Credit":
                 status = 'extra'
+                assignment['student_grade'] = float(grade_ratio[0])
             else:
                 status = 'graded'
                 assignment['student_grade'] = float(grade_ratio[0])
