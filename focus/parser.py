@@ -60,7 +60,7 @@ def parse_portal(portal):
                 courses[id]['name'] = data[0]
                 courses[id]['period'] = int(data[1][len("Period "):])
                 courses[id]['days'] = data[-3]
-                courses[id]['teacher'] = data[-1]
+                courses[id]['teacher'] = ' '.join(list(filter(None, data[-1].split(' '))))
             else:
                 continue
 
@@ -140,7 +140,7 @@ def parse_course(course):
         metadata = metadata.split(" - ")
         course_info['name'] = metadata[0]
         course_info['period'] = int(metadata[1][len("Period "):])
-        course_info['teacher'] = metadata[-1]
+        course_info['teacher'] = ' '.join(list(filter(None, metadata[-1].split(' '))))
 
     category_table = course.find('td', {'class': 'GrayDrawHeader'})
     if category_table:
