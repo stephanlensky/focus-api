@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 
 def simplify_referrals(records):
-    d = {'referrals': []}
+    d = {'referrals': {}}
     for id in records:
         ref = {}
         for k in records[id]:
@@ -19,7 +19,7 @@ def simplify_referrals(records):
         ref['last_updated'] = records[id]['LAST_UPDATED']
         ref['notification_sent'] = records[id]['NOTIFICATION_SENT']
         ref['processed'] = records[id]['PROCESSED'] == 'Y'
-        ref['id'] = int(id)
+        ref['id'] = id
         if records[id]['SUSPENSION_BEGIN']:
             ref['suspension_begin'] = records[id]['SUSPENSION_BEGIN']
             ref['suspension_end'] = records[id]['SUSPENSION_END']
@@ -33,15 +33,15 @@ def simplify_referrals(records):
         ref['name'] = student_name[1] + ' ' + student_name[0]
         ref['grade'] = int(records[id]['_grade'])
 
-        d['referrals'].append(ref)
+        d['referrals'][ref['id']] = ref
 
     return d
 
 def simplify_final_grades(records, type):
-    d = {type: []}
+    d = {type: {}}
     for field in records['result']['grades'].values():
         s = {}
-        s['id'] = int(field['id'])
+        s['id'] = field['id']
         s['syear'] = int(field['syear'])
         s['name'] = field['course_title']
         s['affects_gpa'] = bool(field['affects_gpa'])
@@ -59,7 +59,7 @@ def simplify_final_grades(records, type):
         s['grade_level'] = int(field['gradelevel_title'])
         s['last_updated'] = field['last_updated_date']
         s['location'] = field['location_title']
-        s['mp_id'] = int(field['marking_period_id'])
+        s['mp_id'] = int(field['marking_period_id'].replace('E', ''))
         s['mp_name'] = field['_mp_title']
         if field['comment']:
             s['comment'] = field['comment']
@@ -79,6 +79,6 @@ def simplify_final_grades(records, type):
                 if id == grade_scale_id:
                     s['scale'] = grade_scales[k][id]['title']
 
-        d[type].append(s)
+        d[type][s['id']] = s
 
     return d

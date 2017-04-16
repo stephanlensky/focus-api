@@ -40,7 +40,7 @@ Before doing anything else, make sure you have all of the dependencies installed
 pip3 install flask requests beautifulsoup4 python-dateutil
 ```
 
-Next, clone the repository and run the `app.py` to start the server. In it's default configuration, it will host itself locally on your machine at http://127.0.0.1:5000/api/v2.
+Next, clone the repository and run the `app.py` to start the server. In it's default configuration, it will host itself locally on your machine at http://127.0.0.1:5000/api/v3.
 
 ```bash
 git clone https://github.com/kidcontact/focus-api.git && cd focus-api
@@ -75,15 +75,15 @@ The API does its best to follow RESTful guidelines while still connecting as an 
 
 # log in and retrieve session cookie
 d = {'username':'your.username', 'password':'yourpassword'}
-r = requests.post('http://127.0.0.1:5000/api/v1/session', json=d)
+r = requests.post('http://127.0.0.1:5000/api/v3/session', json=d)
 sess_id = r.cookies
 
 # change the marking period to semester two of 2015
 d = {'year': 2015, 'mp_id': 315}
-r = requests.put('http://127.0.0.1:5000/api/v1/session', json=d, cookies=sess_id
+r = requests.put('http://127.0.0.1:5000/api/v3/session', json=d, cookies=sess_id
 
 # retrieve and print the student's courses
-r = requests.get('http://127.0.0.1:5000/api/v1/portal', cookies=sess_id)
+r = requests.get('http://127.0.0.1:5000/api/v3/portal', cookies=sess_id)
 print(r.json()['courses'])
 
 ```
@@ -166,10 +166,17 @@ Returns a JSON object in the following format with information from the portal p
     },
     ...
   ],
-  "courses": [
-    {
+  "courses": {
+    "11136": {
+      "assignments": [
+        {
+          "due": "2017-02-14T00:00:00", 
+          "name": "Status Check #4"
+        },
+        ...
+      ],
       "days": "MWH", 
-      "id": 11136, 
+      "id": "11136", 
       "letter_grade": "A+", 
       "name": "Learning Studios", 
       "percent_grade": 100, 
@@ -177,20 +184,7 @@ Returns a JSON object in the following format with information from the portal p
       "teacher": "Douglass Adam Belley"
     }, 
     ...
-  ],
-  "upcoming": [
-    {
-      "assignments": [
-        {
-          "due": "2017-02-14T00:00:00", 
-          "name": "Calorie Worksheet"
-        },
-        ...
-       ],
-       "course_id": 11131
-    },
-    ...
-  ],
+  },
   "alert": "You have been absent 9 periods" // may not be present
   // marking period information
 }
@@ -204,17 +198,17 @@ Returns information about all courses that the student has. This endpoint scrape
 
 ```javascript
 {
-  courses: [
-    {
+  "courses": {
+    "11136": {
       // see below for course format
     },
     ...
-  ]
+  }
   // marking period information
 }
 ```
 
-### courses/<int:id>
+### courses/<id>
 
 **Accepts: GET**
 
@@ -260,6 +254,7 @@ Returns information about the course ID in the URL. Make sure that you are in th
     }, 
     ...
   ],
+  "id": "11136",
   "letter_grade": "A+", 
   "name": "Learning Studios", 
   "percent_grade": 100, 
@@ -317,21 +312,21 @@ Returns a calendar for the specificity provided. The day may be omitted to give 
 
 ```javascript
 {
-  "events": [
-    {
+  "events": {
+    "92121": {
       "date": "2016-11-02", 
       "id": "92121", 
       "name": "Spanish American War and March of the Flag Source ORQs", 
       "type": "assignment"
     }, 
-    {
+    "697": {
       "date": "2016-11-07", 
       "id": "697", 
       "name": "Progress Reports", 
       "type": "occasion"
     }, 
     ...
-  ], 
+  }, 
   
   // if you request a calendar only for one day, that day will be listed here as well
   // for a full year, only the year will be listed
@@ -341,7 +336,7 @@ Returns a calendar for the specificity provided. The day may be omitted to give 
 }
 ```
 
-### calendar/occasion/<int:id>
+### calendar/occasion/<id>
 
 **Accepts: GET**
 
@@ -349,14 +344,15 @@ Retrieves detailed information about a calendar event of type `occasion`. If the
 
 ```javascript
 {
-  "date": "2016-12-14", 
+  "date": "2016-12-14",
+  "id": "792",
   "school": "Academy for Science and Design", 
   "title": "SPARK Conference ", 
   "type": "event"
 }
 ```
 
-### calendar/assignment/<int:id>
+### calendar/assignment/<id>
 
 **Accepts: GET**
 
@@ -368,9 +364,10 @@ Retrieves detailed information about a calendar event of type `assignment`. If t
     "days": "TWF", 
     "name": "Advanced Computer Science", 
     "period": 4, 
-    "teacher": "Madge  Smith"
+    "teacher": "Madge Smith"
   }, 
-  "date": "2015-12-11", 
+  "date": "2015-12-11",
+  "id": "1145",
   "notes": "Binary Calculator", 
   "school": "Academy for Science and Design", 
   "title": "Assignment 7", 
@@ -448,12 +445,12 @@ Returns a list of referrals that the student has receieved during the current sc
 
 ```javascript
 {
-  "referrals": [
-    {
+  "referrals": {
+    "3168": {
       // see below for referrals format
     },
     ...
-  ]
+  }
   // marking period information
 }
 ```
@@ -491,11 +488,11 @@ Returns information from the table in the "Absences" section of Focus.
 
 ```javascript
 {
-  "absences": [
-    {
-      "date": "2017-02-22T00:00:00", 
+  "absences": {
+    "2017-02-22": {
+      "date": "2017-02-22", 
       "periods": [
-        {
+        "1": {
           "days": "MWH", 
           "last_updated": "2017-02-22T08:19:21", 
           "last_updated_by": "Douglass Adam Belley", 
@@ -504,11 +501,11 @@ Returns information from the table in the "Absences" section of Focus.
           "status": "absent", 
           "teacher": "Douglass Adam Belley"
         }, 
-        {
+        "2": {
           "period": 2, 
           "status": "unset"
         }, 
-        {
+        "3": {
           "days": "MWH", 
           "last_updated": "2017-02-22T10:17:34", 
           "last_updated_by": "Patricia Ann Sockey", 
@@ -517,24 +514,24 @@ Returns information from the table in the "Absences" section of Focus.
           "status": "absent", 
           "teacher": "Patricia Ann Sockey"
         }, 
-        {
+        "4": {
           "period": 4, 
           "status": "unset"
         }, 
-        {
-          "period": "advisory", 
-          "status": "absent"
-        }, 
-        {
+        "5" {
           "period": 5, 
           "status": "unset"
         }, 
         ...
+        "advisory": {
+          "period": "advisory", 
+          "status": "absent"
+        }
       ], 
       "status": "present"
     }, 
     ...
-  ],
+  },
   "days_possible": 106,
   // marking period information
 }
@@ -548,16 +545,16 @@ Retrieves a list of all term exams that the student has taken. If a field is bla
 
 ```javascript
 {
-  "exams": [
-    {
+  "exams": {
+    "207044": {
       // see below for exam format
     },
     ...
-  ]
+  }
 }
 ```
 
-### exams/<int:id>
+### exams/<id>
 
 **Accepts: GET**
 
@@ -589,7 +586,7 @@ Retrieves information about a single exam. As with the above, different fields m
 }
 ```
 
-### final_grades, final_grades/<int:id>, semester_grades, semester_grades/<int:id>, quarter_grades, quarter_grades/<int:id>
+### final_grades, final_grades/<id>, semester_grades, semester_grades/<id>, quarter_grades, quarter_grades/<id>
 
 **Accepts: GET**
 
@@ -605,7 +602,7 @@ Gets information about overall grades for the duration of the class, by semester
   "credits_earned": 1.0, 
   "gpa_points": 3.7, 
   "grade_level": 10, 
-  "id": 205253, 
+  "id": "205253", 
   "last_updated": "2016-06-20", 
   "last_updated_by": "Madge Smith", 
   "letter_grade": "A-", 

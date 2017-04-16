@@ -18,7 +18,7 @@ import re
 from dateutil.parser import parse
 
 app = Flask(__name__)
-api_url = '/api/v2/'
+api_url = '/api/v3/'
 tld = 'https://focus.asdnh.org/'
 urls = {
     'login': tld + 'focus/index.php',
@@ -190,18 +190,18 @@ def courses():
         abort(500)
     portal = parser.parse_portal(r.text)
     d = {}
-    d['courses'] = []
-    for c in portal['courses']:
+    d['courses'] = {}
+    for c in portal['courses'].values():
         r = requests.get(urls['course_pre'] + str(c['id']), cookies=request.cookies)
         if r.status_code != 200:
             abort(500)
         parsed = parser.parse_course(r.text)
         parsed['days'] = c['days']
-        d['courses'].append(parsed)
+        d['courses'][parsed['id']] = parsed
 
     return jsonify(dict(d, **parser.get_marking_periods(r.text)))
 
-@app.route(api_url + 'courses/<int:id>', methods = ['GET'])
+@app.route(api_url + 'courses/<id>', methods = ['GET'])
 def course(id):
     s = find_session(request.cookies.get('PHPSESSID'), sessions)
     if s is None or session_expired(s):
@@ -276,8 +276,8 @@ def calendar_by_day(year, month, day):
     parsed['day'] = day
     return jsonify(dict(parsed, **parser.get_marking_periods(r.text)))
 
-@app.route(api_url + 'calendar/assignments/<int:id>', methods = ['GET'])
-def holiday(id):
+@app.route(api_url + 'calendar/assignments/<id>', methods = ['GET'])
+def assignment(id):
     s = find_session(request.cookies.get('PHPSESSID'), sessions)
     if s is None or session_expired(s):
         abort(403)
@@ -286,12 +286,13 @@ def holiday(id):
     if r.status_code != 200:
         abort(500)
     ret = parser.parse_calendar_event(r.text)
+    ret['id'] = str(id)
     if ret:
         return jsonify(ret)
     abort(400)
 
-@app.route(api_url + 'calendar/occasions/<int:id>', methods = ['GET'])
-def assignment(id):
+@app.route(api_url + 'calendar/occasions/<id>', methods = ['GET'])
+def occasion(id):
     s = find_session(request.cookies.get('PHPSESSID'), sessions)
     if s is None or session_expired(s):
         abort(403)
@@ -300,6 +301,7 @@ def assignment(id):
     if r.status_code != 200:
         abort(500)
     ret = parser.parse_calendar_event(r.text)
+    ret['id'] = str(id)
     if ret:
         return jsonify(ret)
     abort(400)
@@ -337,7 +339,7 @@ def referrals():
         abort(500)
     return jsonify(dict(parser.parse_referrals(r.text), **parser.get_marking_periods(r.text)))
 
-@app.route(api_url + 'referrals/<int:id>', methods = ['GET'])
+@app.route(api_url + 'referrals/<id>', methods = ['GET'])
 def referral(id):
     s = find_session(request.cookies.get('PHPSESSID'), sessions)
     if s is None or session_expired(s):
@@ -387,7 +389,7 @@ def exams():
 
     return jsonify(d)
 
-@app.route(api_url + 'exams/<int:id>', methods = ['GET'])
+@app.route(api_url + 'exams/<id>', methods = ['GET'])
 def exam(id):
     s = find_session(request.cookies.get('PHPSESSID'), sessions)
     if s is None or session_expired(s):
@@ -450,7 +452,7 @@ def final_grades():
 
     return jsonify(d)
 
-@app.route(api_url + 'final_grades/<int:id>', methods = ['GET'])
+@app.route(api_url + 'final_grades/<id>', methods = ['GET'])
 def final_grade(id):
     s = find_session(request.cookies.get('PHPSESSID'), sessions)
     if s is None or session_expired(s):
@@ -513,7 +515,7 @@ def semester_grades():
 
     return jsonify(d)
 
-@app.route(api_url + 'semester_grades/<int:id>', methods = ['GET'])
+@app.route(api_url + 'semester_grades/<id>', methods = ['GET'])
 def semester_grade(id):
     s = find_session(request.cookies.get('PHPSESSID'), sessions)
     if s is None or session_expired(s):
@@ -576,7 +578,7 @@ def quarter_grades():
 
     return jsonify(d)
 
-@app.route(api_url + 'quarter_grades/<int:id>', methods = ['GET'])
+@app.route(api_url + 'quarter_grades/<id>', methods = ['GET'])
 def quarter_grade(id):
     s = find_session(request.cookies.get('PHPSESSID'), sessions)
     if s is None or session_expired(s):

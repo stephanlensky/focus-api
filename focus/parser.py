@@ -47,9 +47,9 @@ def parse_portal(portal):
     url_start = 'Modules.php?modname=Grades/StudentGBGrades.php?course_period_id='
     for a in links:
         if 'href' in a.attrs and a.attrs['href'].startswith(url_start):
-            id = int(a.attrs['href'][len(url_start):])
+            id = a.attrs['href'][len(url_start):]
             if id not in courses:
-                courses[id] = {}
+                courses[id] = {"id": id}
 
             t = a.text.replace(u'\xa0', u' ') # replace non-breaking space with normal space
             if t.find('%') > 0:
@@ -64,13 +64,6 @@ def parse_portal(portal):
             else:
                 continue
 
-    # convert from a dict that has id -> course info to a list that has each course
-    course_list = []
-    for id in courses:
-        course = {"id":id}
-        course.update(courses[id])
-        course_list.append(course)
-    courses = course_list
 
     events = []
     upcoming = portal.find('td', {'class': 'portal_block_Upcoming'})
@@ -89,33 +82,30 @@ def parse_portal(portal):
         events.append(event)
 
     alerts = portal.find('td', {'class': 'portal_block_Alerts'}).find('td', {'class': 'BoxContent'})
-    upcoming = []
-
     ul = alerts.find('ul')
     if ul:
         li = ul.find_all('li')
         for i in range(0, len(li), 2):
             u = {}
             period = int(li[i].text.split(' - ')[0][-1:])
-            for c in courses:
+            course = None
+            for c in courses.values():
                 if c['period'] == period:
-                    u['course_id'] = c['id']
+                    course = c
                     break
 
-            u['assignments'] = []
-            for tr in li[i + 1].find_all('tr'):
-                a = {}
-                td = tr.find_all('td')
-                a['name'] = td[0].text.replace('\n', '')
-                a['due'] = parse(td[1].text.strip()[5:]).isoformat()
-                u['assignments'].append(a)
-
-            upcoming.append(u)
+            if course:
+                course['assignments'] = []
+                for tr in li[i + 1].find_all('tr'):
+                    a = {}
+                    td = tr.find_all('td')
+                    a['name'] = td[0].text.replace('\n', '')
+                    a['due'] = parse(td[1].text.strip()[5:]).isoformat()
+                    course['assignments'].append(a)
 
     d = {
         'events': events,
-        'courses': courses,
-        'upcoming': upcoming
+        'courses': courses
     }
 
     alert_text = alerts.find('a')
@@ -132,7 +122,7 @@ def parse_course(course):
 
     s = str(course).find('course_period_id=') + len('course_period_id=')
     f = str(course)[s:].find('&') + s
-    course_info['id'] = int(str(course)[s:f])
+    course_info['id'] = str(course)[s:f]
 
     metadata = course.find('img', {'src':'modules/Grades/Grades.png'})
     if metadata:
@@ -290,7 +280,7 @@ def parse_calendar(calendar):
             year = int(y.attrs['value'])
             break
 
-    events = []
+    events = {}
     for r in tr:
         for d in r.find_all('td', recursive=False):
             if d.text.strip() == "":
@@ -308,12 +298,12 @@ def parse_calendar(calendar):
 
                 id = onclick[onclick.find('_id=') + 4:onclick.find('&year')]
                 type = 'assignment' if onclick.find('assignment') >= 0 else 'occasion'
-                events.append({
+                events[id] = {
                     'id': id,
                     'name': name,
                     'type': type,
                     'date': d
-                })
+                }
 
     return {
             'events': events,
@@ -505,7 +495,7 @@ def parse_absences(absences):
             break
         period_names.append(h.text.lower())
 
-    missed = []
+    missed = {}
     count = 1
     tr = absences.find('tr', id='LOy_row' + str(count))
     while tr:
@@ -513,10 +503,10 @@ def parse_absences(absences):
         fields = tr.find_all('td', {'class': 'LO_field'})
 
         if len(fields):
-            a['date'] = parse(fields[0].text).isoformat()
+            a['date'] = parse(fields[0].text).date().isoformat()
             a['status'] = fields[1].text.lower().split(' ')[0]
 
-            a['periods'] = []
+            a['periods'] = {}
             for p, n in zip(fields[2:], period_names):
                 c = {}
                 c['period'] = int(n) if n.isdigit() else n
@@ -550,9 +540,9 @@ def parse_absences(absences):
                 else:
                     c['status'] = 'misc'
 
-                a['periods'].append(c)
+                a['periods'][str(c['period'])] = c
 
-            missed.append(a)
+            missed[a['date']] = a
 
         count += 1
         tr = absences.find('tr', id='LOy_row' + str(count))
