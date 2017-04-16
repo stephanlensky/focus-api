@@ -132,7 +132,7 @@ Returned:
 Updates the marking period given a year and marking period id. An additional `redirect` parameter may be given to specify the page returned after changing the marking period. Valid redirect values follow the same format as API urls. So for example, to retrieve the new portal, send `portal`. To retrieve course 15206, send `course/15206`. Keep in mind, not all pages can be redirected to. The list of valid redirects are as follows:
 
 - portal
-- course/<int:id>
+- course/\<id>
 - schedule
 - demographic
 - address
@@ -208,7 +208,7 @@ Returns information about all courses that the student has. This endpoint scrape
 }
 ```
 
-### courses/<id>
+### courses/\<id>
 
 **Accepts: GET**
 
@@ -304,11 +304,11 @@ Returns a student's full year schedule, taken from Focus's "Class Registration/S
 }
 ```
 
-### calendar/<int:year>/<int:month>/<int:day>
+### calendar/\<int:year>/\<int:month>/\<int:day>
 
 **Accepts: GET**
 
-Returns a calendar for the specificity provided. The day may be omitted to give a full month, and the month may be omitted to get a full year. Focus provides calendars only by month, so retrieving a full year's calendar is very slow. To retrieve additional information about events, use `calendar/assignments/<int:id>` and `calendar/occasions/<int:id>`, depending on the type of the event.
+Returns a calendar for the specificity provided. The day may be omitted to give a full month, and the month may be omitted to get a full year. Focus provides calendars only by month, so retrieving a full year's calendar is very slow. To retrieve additional information about events, use `calendar/assignments/\<id>` and `calendar/occasions/\<id>`, depending on the type of the event.
 
 ```javascript
 {
@@ -336,7 +336,7 @@ Returns a calendar for the specificity provided. The day may be omitted to give 
 }
 ```
 
-### calendar/occasion/<id>
+### calendar/occasion/\<id>
 
 **Accepts: GET**
 
@@ -352,7 +352,7 @@ Retrieves detailed information about a calendar event of type `occasion`. If the
 }
 ```
 
-### calendar/assignment/<id>
+### calendar/assignment/\<id>
 
 **Accepts: GET**
 
@@ -455,7 +455,7 @@ Returns a list of referrals that the student has receieved during the current sc
 }
 ```
 
-### referrals/<int:id>
+### referrals/\<id>
 
 **Accepts: GET**
 
@@ -467,7 +467,7 @@ Returns information about a single referral (that was given during the selected 
   "display": true, 
   "entry_date": "2016-10-13", 
   "grade": 11,
-  "id": 3168, 
+  "id": "3168", 
   "last_updated": "2016-10-13", 
   "name": "Stephan Lensky",
   "notification_sent": 0, 
@@ -554,7 +554,7 @@ Retrieves a list of all term exams that the student has taken. If a field is bla
 }
 ```
 
-### exams/<id>
+### exams/\<id>
 
 **Accepts: GET**
 
@@ -586,7 +586,7 @@ Retrieves information about a single exam. As with the above, different fields m
 }
 ```
 
-### final_grades, final_grades/<id>, semester_grades, semester_grades/<id>, quarter_grades, quarter_grades/<id>
+### final_grades, final_grades/\<id>, semester_grades, semester_grades/\<id>, quarter_grades, quarter_grades/\<id>
 
 **Accepts: GET**
 
