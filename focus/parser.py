@@ -103,10 +103,9 @@ def parse_portal(portal):
                     a['due'] = parse(td[1].text.strip()[5:]).isoformat()
                     course['assignments'].append(a)
 
-    d = {
-        'events': events,
-        'courses': courses
-    }
+    d = {}
+    if courses: d['courses'] = courses
+    if events: d['events'] = events
 
     alert_text = alerts.find('a')
     if alert_text:
@@ -305,11 +304,13 @@ def parse_calendar(calendar):
                     'date': d
                 }
 
-    return {
-            'events': events,
-            'month': month,
-            'year': year
-        }
+    d = {
+        'month': month,
+        'year': year
+    }
+    if events: d['events'] = events
+
+    return d
 
 def parse_calendar_event(calendar_event):
     calendar_event = BeautifulSoup(calendar_event, 'html.parser')
