@@ -10,7 +10,6 @@ import re
 def get_marking_periods(page):
     page = BeautifulSoup(page, 'html.parser')
     years = page.find('select', {'name': 'side_syear'}).findChildren()
-    selected_year = ''
     available_years = []
     for y in years:
         if y.has_attr('selected'):
@@ -18,18 +17,20 @@ def get_marking_periods(page):
         available_years.append(int(y['value']))
 
     mps = page.find('select', {'name': 'side_mp'}).findChildren()
-    selected_mp = ''
-    available_mps = []
+
+    marking_periods = {}
     for mp in mps:
+        mpd = {}
+        mpd['id'] = mp['value']
+        mpd['name'] = mp.get_text()
+        mpd['year'] = selected_year
         if mp.has_attr('selected'):
-            selected_mp = int(mp['value'])
-        available_mps.append(int(mp['value']))
+            mpd['selected'] = True
+        marking_periods[mpd['id']] = mpd
 
     return {
-        'current_mp_year': selected_year,
-        'current_mp_id': selected_mp,
-        'available_mp_years': available_years,
-        'available_mp_ids': available_mps
+        'mps': marking_periods,
+        'mp_years': available_years
     }
 
 def get_student_id(page):
