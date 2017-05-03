@@ -178,6 +178,7 @@ def portal():
     r = requests.get(urls['portal'], cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
+    s.expire_time = int(r.cookies['session_timeout'])
     return jsonify(dict(parser.parse_portal(r.text), **parser.get_marking_periods(r.text)))
 
 @app.route(api_url + 'courses', methods = ['GET'])
@@ -188,6 +189,7 @@ def courses():
     r = requests.get(urls['portal'] + str(id), cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
+    s.expire_time = int(r.cookies['session_timeout'])
     portal = parser.parse_portal(r.text)
     d = {}
     d['courses'] = {}
@@ -211,6 +213,7 @@ def course(id):
         abort(404)
     elif r.status_code != 200:
         abort(500)
+    s.expire_time = int(r.cookies['session_timeout'])
     return jsonify(dict(parser.parse_course(r.text), **parser.get_marking_periods(r.text)))
 
 @app.route(api_url + 'schedule', methods = ['GET'])
@@ -221,6 +224,7 @@ def schedule():
     r = requests.get(urls['schedule'], cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
+    s.expire_time = int(r.cookies['session_timeout'])
     return jsonify(dict(parser.parse_schedule(r.text), **parser.get_marking_periods(r.text)))
 
 @app.route(api_url + 'calendar/<int:year>', methods = ['GET'])
@@ -233,6 +237,7 @@ def calendar_by_year(year):
     r = requests.get(urls['calendar_pre'] + query, cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
+    s.expire_time = int(r.cookies['session_timeout'])
     parsed = parser.parse_calendar(r.text)
     d = parsed
     d.pop('month')
@@ -257,6 +262,7 @@ def calendar_by_month(year, month):
     r = requests.get(urls['calendar_pre'] + query, cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
+    s.expire_time = int(r.cookies['session_timeout'])
     return jsonify(dict(parser.parse_calendar(r.text), **parser.get_marking_periods(r.text)))
 
 @app.route(api_url + 'calendar/<int:year>/<int:month>/<int:day>', methods = ['GET'])
@@ -271,6 +277,7 @@ def calendar_by_day(year, month, day):
     r = requests.get(urls['calendar_pre'] + query, cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
+    s.expire_time = int(r.cookies['session_timeout'])
     parsed = parser.parse_calendar(r.text)
     parsed['events'] = [i for i in parsed['events'] if parse(i['date']).day == day]
     parsed['day'] = day
@@ -285,6 +292,7 @@ def assignment(id):
     r = requests.get(urls['assignment_pre'] + str(id), cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
+    s.expire_time = int(r.cookies['session_timeout'])
     ret = parser.parse_calendar_event(r.text)
     ret['id'] = str(id)
     if ret:
@@ -300,6 +308,7 @@ def occasion(id):
     r = requests.get(urls['event_pre'] + str(id), cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
+    s.expire_time = int(r.cookies['session_timeout'])
     ret = parser.parse_calendar_event(r.text)
     ret['id'] = str(id)
     if ret:
@@ -314,6 +323,7 @@ def demographic():
     r = requests.get(urls['demographic'], cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
+    s.expire_time = int(r.cookies['session_timeout'])
     ret = parser.parse_demographic(r.text)
     img = requests.get(urls['tld'] + ret[1].replace('../', ''), cookies=request.cookies)
     ret[0]['picture'] = base64.b64encode(img.content).decode('utf-8')
@@ -327,6 +337,7 @@ def address():
     r = requests.get(urls['address'], cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
+    s.expire_time = int(r.cookies['session_timeout'])
     return jsonify(dict(parser.parse_address(r.text), **parser.get_marking_periods(r.text)))
 
 @app.route(api_url + 'referrals', methods = ['GET'])
@@ -337,6 +348,7 @@ def referrals():
     r = requests.get(urls['referrals'], cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
+    s.expire_time = int(r.cookies['session_timeout'])
     return jsonify(dict(parser.parse_referrals(r.text), **parser.get_marking_periods(r.text)))
 
 @app.route(api_url + 'referrals/<id>', methods = ['GET'])
@@ -347,6 +359,7 @@ def referral(id):
     r = requests.get(urls['referrals'], cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
+    s.expire_time = int(r.cookies['session_timeout'])
 
     parsed = parser.parse_referrals(r.text)
     target = None
@@ -494,6 +507,9 @@ def semester_grades():
     # calling the API does not work if you don't get this page first (focus plz)
     if not s.can_invoke_api:
         r = requests.get(urls['final_grades'], cookies=request.cookies)
+        if r.status_code != 200:
+            abort(500)
+        s.expire_time = int(r.cookies['session_timeout'])
         s.can_invoke_api = True
         s.student_id = parser.get_student_id(r.text)
 
@@ -524,6 +540,9 @@ def semester_grade(id):
     # calling the API does not work if you don't get this page first (focus plz)
     if not s.can_invoke_api:
         r = requests.get(urls['final_grades'], cookies=request.cookies)
+        if r.status_code != 200:
+            abort(500)
+        s.expire_time = int(r.cookies['session_timeout'])
         s.can_invoke_api = True
         s.student_id = parser.get_student_id(r.text)
 
@@ -557,6 +576,9 @@ def quarter_grades():
     # calling the API does not work if you don't get this page first (focus plz)
     if not s.can_invoke_api:
         r = requests.get(urls['final_grades'], cookies=request.cookies)
+        if r.status_code != 200:
+            abort(500)
+        s.expire_time = int(r.cookies['session_timeout'])
         s.can_invoke_api = True
         s.student_id = parser.get_student_id(r.text)
 
@@ -587,6 +609,9 @@ def quarter_grade(id):
     # calling the API does not work if you don't get this page first (focus plz)
     if not s.can_invoke_api:
         r = requests.get(urls['final_grades'], cookies=request.cookies)
+        if r.status_code != 200:
+            abort(500)
+        s.expire_time = int(r.cookies['session_timeout'])
         s.can_invoke_api = True
         s.student_id = parser.get_student_id(r.text)
 
@@ -619,6 +644,7 @@ def absences():
     r = requests.get(urls['absences'], cookies=request.cookies)
     if r.status_code != 200:
         abort(500)
+    s.expire_time = int(r.cookies['session_timeout'])
     return jsonify(dict(parser.parse_absences(r.text), **parser.get_marking_periods(r.text)))
 
 
