@@ -169,7 +169,7 @@ def session():
             parsed = parser.parse_portal(r.text)
 
         resp = jsonify(dict(parsed, **parser.get_marking_periods(r.text)))
-        resp.set_cookie('session_timeout', s.expire_time)
+        resp.set_cookie('session_timeout', str(s.expire_time))
         return resp
 
 
@@ -183,7 +183,7 @@ def portal():
         abort(500)
     s.expire_time = int(r.cookies['session_timeout'])
     resp = jsonify(dict(parser.parse_portal(r.text), **parser.get_marking_periods(r.text)))
-    resp.set_cookie('session_timeout', s.expire_time)
+    resp.set_cookie('session_timeout', str(s.expire_time))
     return resp
 
 @app.route(api_url + 'courses', methods = ['GET'])
@@ -207,7 +207,7 @@ def courses():
         d['courses'][parsed['id']] = parsed
 
     resp = jsonify(dict(d, **parser.get_marking_periods(r.text)))
-    resp.set_cookie('session_timeout', s.expire_time)
+    resp.set_cookie('session_timeout', str(s.expire_time))
     return resp
 
 @app.route(api_url + 'courses/<id>', methods = ['GET'])
@@ -222,7 +222,7 @@ def course(id):
         abort(500)
     s.expire_time = int(r.cookies['session_timeout'])
     resp = jsonify(dict(parser.parse_course(r.text), **parser.get_marking_periods(r.text)))
-    resp.set_cookie('session_timeout', s.expire_time)
+    resp.set_cookie('session_timeout', str(s.expire_time))
     return resp
 
 @app.route(api_url + 'schedule', methods = ['GET'])
@@ -235,7 +235,7 @@ def schedule():
         abort(500)
     s.expire_time = int(r.cookies['session_timeout'])
     resp = jsonify(dict(parser.parse_schedule(r.text), **parser.get_marking_periods(r.text)))
-    resp.set_cookie('session_timeout', s.expire_time)
+    resp.set_cookie('session_timeout', str(s.expire_time))
     return resp
 
 @app.route(api_url + 'calendar/<int:year>', methods = ['GET'])
@@ -260,7 +260,7 @@ def calendar_by_year(year):
         parsed = parser.parse_calendar(r.text)
         d['events'] = d['events'] + parsed['events']
     resp = jsonify(dict(d), **parser.get_marking_periods(r.text))
-    resp.set_cookie('session_timeout', s.expire_time)
+    resp.set_cookie('session_timeout', str(s.expire_time))
     return resp
 
 @app.route(api_url + 'calendar/<int:year>/<int:month>', methods = ['GET'])
@@ -277,7 +277,7 @@ def calendar_by_month(year, month):
         abort(500)
     s.expire_time = int(r.cookies['session_timeout'])
     resp = jsonify(dict(parser.parse_calendar(r.text), **parser.get_marking_periods(r.text)))
-    resp.set_cookie('session_timeout', s.expire_time)
+    resp.set_cookie('session_timeout', str(s.expire_time))
     return resp
 
 @app.route(api_url + 'calendar/<int:year>/<int:month>/<int:day>', methods = ['GET'])
@@ -297,7 +297,7 @@ def calendar_by_day(year, month, day):
     parsed['events'] = [i for i in parsed['events'] if parse(i['date']).day == day]
     parsed['day'] = day
     resp = jsonify(dict(parsed, **parser.get_marking_periods(r.text)))
-    resp.set_cookie('session_timeout', s.expire_time)
+    resp.set_cookie('session_timeout', str(s.expire_time))
     return resp
 
 @app.route(api_url + 'calendar/assignments/<id>', methods = ['GET'])
@@ -314,7 +314,7 @@ def assignment(id):
     ret['id'] = str(id)
     if ret:
         resp = jsonify(ret)
-        resp.set_cookie('session_timeout', s.expire_time)
+        resp.set_cookie('session_timeout', str(s.expire_time))
         return resp
     abort(400)
 
@@ -332,7 +332,7 @@ def occasion(id):
     ret['id'] = str(id)
     if ret:
         resp = jsonify(ret)
-        resp.set_cookie('session_timeout', s.expire_time)
+        resp.set_cookie('session_timeout', str(s.expire_time))
         return resp
     abort(400)
 
@@ -349,7 +349,7 @@ def demographic():
     img = requests.get(urls['tld'] + ret[1].replace('../', ''), cookies=request.cookies)
     ret[0]['picture'] = base64.b64encode(img.content).decode('utf-8')
     resp = jsonify(dict(ret[0], **parser.get_marking_periods(r.text)))
-    resp.set_cookie('session_timeout', s.expire_time)
+    resp.set_cookie('session_timeout', str(s.expire_time))
     return resp
 
 @app.route(api_url + 'address', methods = ['GET'])
@@ -362,7 +362,7 @@ def address():
         abort(500)
     s.expire_time = int(r.cookies['session_timeout'])
     resp = jsonify(dict(parser.parse_address(r.text), **parser.get_marking_periods(r.text)))
-    resp.set_cookie('session_timeout', s.expire_time)
+    resp.set_cookie('session_timeout', str(s.expire_time))
     return resp
 
 @app.route(api_url + 'referrals', methods = ['GET'])
@@ -375,7 +375,7 @@ def referrals():
         abort(500)
     s.expire_time = int(r.cookies['session_timeout'])
     resp = jsonify(dict(parser.parse_referrals(r.text), **parser.get_marking_periods(r.text)))
-    resp.set_cookie('session_timeout', s.expire_time)
+    resp.set_cookie('session_timeout', str(s.expire_time))
     return resp
 
 @app.route(api_url + 'referrals/<id>', methods = ['GET'])
@@ -398,7 +398,7 @@ def referral(id):
         abort(404)
 
     resp = jsonify(dict(target, **parser.get_marking_periods(r.text)))
-    resp.set_cookie('session_timeout', s.expire_time)
+    resp.set_cookie('session_timeout', str(s.expire_time))
     return resp
 
 @app.route(api_url + 'exams', methods = ['GET'])
@@ -430,7 +430,7 @@ def exams():
     d = simplify_final_grades(r.json(), 'exams')
 
     resp = jsonify(d)
-    resp.set_cookie('session_timeout', s.expire_time)
+    resp.set_cookie('session_timeout', str(s.expire_time))
     return resp
 
 @app.route(api_url + 'exams/<id>', methods = ['GET'])
@@ -464,7 +464,7 @@ def exam(id):
     for e in d['exams']:
         if e['id'] == id:
             resp = jsonify(e)
-            resp.set_cookie('session_timeout', s.expire_time)
+            resp.set_cookie('session_timeout', str(s.expire_time))
             return resp
     abort(404)
 
@@ -497,7 +497,7 @@ def final_grades():
     d = simplify_final_grades(r.json(), 'grades')
 
     resp = jsonify(d)
-    resp.set_cookie('session_timeout', s.expire_time)
+    resp.set_cookie('session_timeout', str(s.expire_time))
     return resp
 
 @app.route(api_url + 'final_grades/<id>', methods = ['GET'])
@@ -531,7 +531,7 @@ def final_grade(id):
     for g in d['grades']:
         if g['id'] == id:
             resp = jsonify(g)
-            resp.set_cookie('session_timeout', s.expire_time)
+            resp.set_cookie('session_timeout', str(s.expire_time))
             return resp
     abort(404)
 
@@ -567,7 +567,7 @@ def semester_grades():
     d = simplify_final_grades(r.json(), 'grades')
 
     resp = jsonify(d)
-    resp.set_cookie('session_timeout', s.expire_time)
+    resp.set_cookie('session_timeout', str(s.expire_time))
     return resp
 
 @app.route(api_url + 'semester_grades/<id>', methods = ['GET'])
@@ -604,7 +604,7 @@ def semester_grade(id):
     for g in d['grades']:
         if g['id'] == id:
             resp = jsonify(g)
-            resp.set_cookie('session_timeout', s.expire_time)
+            resp.set_cookie('session_timeout', str(s.expire_time))
             return resp
     abort(404)
 
@@ -640,7 +640,7 @@ def quarter_grades():
     d = simplify_final_grades(r.json(), 'grades')
 
     resp = jsonify(d)
-    resp.set_cookie('session_timeout', s.expire_time)
+    resp.set_cookie('session_timeout', str(s.expire_time))
     return resp
 
 @app.route(api_url + 'quarter_grades/<id>', methods = ['GET'])
@@ -677,7 +677,7 @@ def quarter_grade(id):
     for g in d['grades']:
         if g['id'] == id:
             resp = jsonify(g)
-            resp.set_cookie('session_timeout', s.expire_time)
+            resp.set_cookie('session_timeout', str(s.expire_time))
             return resp
     abort(404)
 
@@ -691,7 +691,7 @@ def absences():
         abort(500)
     s.expire_time = int(r.cookies['session_timeout'])
     resp = jsonify(dict(parser.parse_absences(r.text), **parser.get_marking_periods(r.text)))
-    resp.set_cookie('session_timeout', s.expire_time)
+    resp.set_cookie('session_timeout', str(s.expire_time))
     return resp
 
 
