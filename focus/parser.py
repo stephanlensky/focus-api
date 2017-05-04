@@ -124,13 +124,11 @@ def parse_course(course):
     f = str(course)[s:].find('&') + s
     course_info['id'] = str(course)[s:f]
 
-    metadata = course.find('img', {'src':'modules/Grades/Grades.png'})
-    if metadata:
-        metadata = metadata.text
-        metadata = metadata.split(" - ")
-        course_info['name'] = metadata[0]
-        course_info['period'] = int(metadata[1][len("Period "):])
-        course_info['teacher'] = ' '.join(list(filter(None, metadata[-1].split(' '))))
+    metadata = course.find('title').text
+    metadata = metadata.split(" - ")
+    course_info['name'] = metadata[0]
+    course_info['period'] = int(metadata[1][len("Period "):])
+    course_info['teacher'] = ' '.join(list(filter(None, metadata[-1].split(' '))))
 
     category_table = course.find('td', {'class': 'GrayDrawHeader'})
     if category_table:
