@@ -187,7 +187,6 @@ def session():
 @app.route(api_url + 'portal', methods = ['GET'])
 def portal():
     s = find_session(request.cookies.get('PHPSESSID'), sessions)
-    print(s.expired())
     if s is None or s.expired():
         abort(403)
     r = requests.get(urls['portal'], cookies=request.cookies)
