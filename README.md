@@ -336,7 +336,7 @@ Returns a calendar for the specificity provided. The day may be omitted to give 
 }
 ```
 
-### calendar/occasion/\<id>
+### calendar/occasions/\<id>
 
 **Accepts: GET**
 
@@ -352,7 +352,7 @@ Retrieves detailed information about a calendar event of type `occasion`. If the
 }
 ```
 
-### calendar/assignment/\<id>
+### calendar/assignments/\<id>
 
 **Accepts: GET**
 
