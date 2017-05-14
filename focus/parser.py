@@ -329,8 +329,13 @@ def parse_calendar_event(calendar_event):
             course['name'] = tr[3].find_all('td')[1].text
             data = tr[4].find_all('td')[1].text.split(' - ')
             course['period'] = int(data[0][len("Period "):])
-            course['days'] = data[1]
-            course['teacher'] = data[3]
+            if len(data) == 4:
+                course['days'] = data[1]
+                course['teacher'] = data[3]
+            else:
+                course['term'] = data[1].lower()
+                course['days'] = data[2]
+                course['teacher'] = data[4]
             d['course'] = course
             start = 5
         else:
