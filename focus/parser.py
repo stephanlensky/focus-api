@@ -400,7 +400,7 @@ def parse_demographic(demographic):
     if 'level' in d: d['level'] = int(d['level'])
     if 'locker' in d: d['locker'] = int(d['locker'])
     if 'bus' in d and d['bus'] != '0':
-        busses = d['bus'].split(' ')
+        busses = d['bus'].split(' ') if ' ' in d['bus'] else d['bus'].split('/')
         d['arrival_bus'] = int(busses[0])
         d['dismissal_bus'] = int(busses[1])
     if 'bus' in d: d.pop('bus')

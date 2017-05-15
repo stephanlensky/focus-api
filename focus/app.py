@@ -356,7 +356,7 @@ def demographic():
     if r.status_code != 200:
         abort(500)
     ret = parser.parse_demographic(r.text)
-    img = requests.get(urls['tld'] + ret[1].replace('../', ''), cookies=request.cookies)
+    img = requests.get(tld + ret[1].replace('../', ''), cookies=request.cookies)
     ret[0]['picture'] = base64.b64encode(img.content).decode('utf-8')
     s.last_accessed = time()
     resp = jsonify(dict(ret[0], **parser.get_marking_periods(r.text)))
