@@ -400,9 +400,12 @@ def parse_demographic(demographic):
     if 'level' in d: d['level'] = int(d['level'])
     if 'locker' in d: d['locker'] = int(d['locker'])
     if 'bus' in d and d['bus'] != '0':
-        busses = d['bus'].split(' ') if ' ' in d['bus'] else d['bus'].split('/')
-        d['arrival_bus'] = int(busses[0])
-        d['dismissal_bus'] = int(busses[1])
+        buses = d['bus'].split(' ') if ' ' in d['bus'] else d['bus'].split('/')
+        d['arrival_bus'] = int(buses[0])
+        if len(buses) > 1:
+            d['dismissal_bus'] = int(buses[1])
+        else:
+            d['dismissal_bus'] = int(buses[0])
     if 'bus' in d: d.pop('bus')
     if 'cumulative_file' in d: d['cumulative_file'] = True if d['cumulative_file'] == 'Have file' else False
     if 'medical_record_status' in d: d['medical_record_status'] = \
