@@ -8,11 +8,16 @@ def simplify_referrals(records):
             if not k.startswith('CUSTOM_'):
                 continue
             violation = records[id][k]
-            if violation is not None and violation != 'Other':
-                violation = str(records[id][k])
-                if violation.startswith("['', '"):
-                    violation = violation[6:-6]
-                ref['violation'] = violation
+            if violation is not None:
+                if type(violation) is list:
+                    violation = next(filter(bool, list(violation)), None)
+                if violation.lower().strip() == "other" or len(violation) < 2:
+                    continue
+
+                if k.endswith('_1'):
+                    ref['violation'] = violation
+                else:
+                    ref['other_violation'] = violation
         ref['creation_date'] = records[id]['CREATION_DATE']
         ref['display'] = records[id]['DISPLAY'] == 'Y'
         ref['entry_date'] = records[id]['ENTRY_DATE']

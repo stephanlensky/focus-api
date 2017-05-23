@@ -471,6 +471,7 @@ Returns information about a single referral (that was given during the selected 
   "last_updated": "2016-10-13", 
   "name": "Stephan Lensky",
   "notification_sent": 0, 
+  "other_violation": "Would not stop when asked",
   "processed": true, 
   "school": "Academy for Science and Design", 
   "school_year": 2016, 
