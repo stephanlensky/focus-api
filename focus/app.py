@@ -2,6 +2,7 @@
 import sys
 from time import time
 from flask import Flask, jsonify, abort, request, make_response
+from flask_compress import Compress
 import requests
 import base64
 from focus import parser
@@ -18,6 +19,7 @@ import re
 from dateutil.parser import parse
 
 app = Flask(__name__)
+Compress(app)
 api_url = '/api/v3/'
 tld = 'https://focus.asdnh.org/'
 urls = {
