@@ -492,9 +492,26 @@ def parse_absences(absences):
     absences = BeautifulSoup(absences, 'html.parser')
     d = {}
 
-    start = absences.text.find('Total Full Days Possible: ') + len('Total Full Days Possible: ')
-    end = start + absences.text[start:].find('Total Full Days Attended')
-    d['days_possible'] = int(absences.text[start:end])
+    key1 = 'Total Full Days Possible: '
+    key2 = 'Total Full Days Attended: '
+    key3 = 'Total Full Days Absent: '
+    key4 = 'Enrollment Dates: '
+
+    start = absences.text.find(key1) + len(key1)
+    end = start + absences.text[start:].find(key2)
+    d['days_possible'] = float(absences.text[start:end])
+
+    start = absences.text.find(key2) + len(key2)
+    end = start + absences.text[start:].find(key3)
+    attended = absences.text[start:end]
+    d['days_attended'] = float(attended[:attended.find(' ')])
+    d['days_attended_percent'] = float(attended[attended.find('(') + 1:attended.find('%')])
+
+    start = absences.text.find(key3) + len(key3)
+    end = start + absences.text[start:].find(key4)
+    absent = absences.text[start:end]
+    d['days_absent'] = float(absent[:absent.find(' ')])
+    d['days_absent_percent'] = float(absent[absent.find('(') + 1:absent.find('%')])
 
     headers = absences.find_all('td', attrs={'class': 'LO_header'})
     period_names = []
@@ -527,14 +544,14 @@ def parse_absences(absences):
 
                     # focus doesn't account for middle names properly in this page, so teachers without
                     # middle names have two spaces in between their first and last!
-                    c['teacher'] = course_info[4].replace('  ', ' ')
+                    c['teacher'] = course_info[-1].replace('  ', ' ')
 
                     c['last_updated'] = parse(tooltip[1][len('Last Modified: '):]).isoformat()
                     name = tooltip[2].strip().split(', ')
                     c['last_updated_by'] = name[1] + ' ' + name[0]
 
                 if p.text.strip() == '':
-                    c['status'] = 'unset'
+                    continue#c['status'] = 'unset'
                 elif p.text == 'A' or p.text == '-':
                     c['status'] = 'absent'
                 elif p.text == 'E':

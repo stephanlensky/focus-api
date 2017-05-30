@@ -533,7 +533,11 @@ Returns information from the table in the "Absences" section of Focus.
     }, 
     ...
   },
-  "days_possible": 106,
+  "days_absent": 12.5, 
+  "days_absent_percent": 7.86, 
+  "days_attended": 146.5, 
+  "days_attended_percent": 92.14, 
+  "days_possible": 159.0, 
   // marking period information
 }
 ```
