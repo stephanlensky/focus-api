@@ -6,6 +6,7 @@ from datetime import date
 import json
 import sys
 import re
+from parse import parse as string_parse
 
 def get_marking_periods(page):
     page = BeautifulSoup(page, 'html.parser')
@@ -491,6 +492,28 @@ def parse_referrals(referrals):
 def parse_absences(absences):
     absences = BeautifulSoup(absences, 'html.parser')
     d = {}
+
+    table = absences.find('td', attrs={'class': 'WhiteDrawHeader'})
+    format = 'Absent: {} periods (during {} days)\n\nA\n\t\t\t\t\tAbsent: {} periods  -- {} days\n\n\nE\n\t\t\t\t\t' \
+             'Excused Absence: {} periods  -- {} days\nOther Marks: {} periods (during {} days)\n\nL\n\t\t\t\t\t' \
+             'Late: {} periods \n\t\t\t\t\n\nT\n\t\t\t\t\tTardy: {} periods \n\t\t\t\t\n\nM\n\t\t\t\t\t' \
+             'Misc. Activity: {} periods \n\t\t\t\t\n\nO\n\t\t\t\t\tOff Site/Field Trip: {} periods \n\t\t\t\t'
+    parsed = string_parse(format, table.text)
+    #print(parsed)
+
+    d['periods_absent'] = int(parsed[0])
+    d['days_partially_absent'] = int(parsed[1])
+    d['periods_absent_unexcused'] = int(parsed[2])
+    d['days_absent_unexcused'] = int(parsed[3])
+    d['periods_absent_excused'] = int(parsed[4])
+    d['days_absent_excused'] = int(parsed[5])
+    d['periods_other_marks'] = int(parsed[6])
+    d['days_other_marks'] = int(parsed[7])
+    d['periods_late'] = int(parsed[8])
+    d['periods_tardy'] = int(parsed[9])
+    d['periods_misc'] = int(parsed[10])
+    d['periods_offsite'] = int(parsed[11])
+
 
     key1 = 'Total Full Days Possible: '
     key2 = 'Total Full Days Attended: '

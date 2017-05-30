@@ -534,10 +534,22 @@ Returns information from the table in the "Absences" section of Focus.
     ...
   },
   "days_absent": 12.5, 
+  "days_absent_excused": 9, 
   "days_absent_percent": 7.86, 
+  "days_absent_unexcused": 2, 
   "days_attended": 146.5, 
   "days_attended_percent": 92.14, 
+  "days_other_marks": 22, 
+  "days_partially_absent": 31, 
   "days_possible": 159.0, 
+  "periods_absent": 126, 
+  "periods_absent_excused": 96, 
+  "periods_absent_unexcused": 30, 
+  "periods_late": 10, 
+  "periods_misc": 15, 
+  "periods_offsite": 52, 
+  "periods_other_marks": 77, 
+  "periods_tardy": 0
   // marking period information
 }
 ```
