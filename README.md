@@ -580,13 +580,13 @@ Retrieves information about a single exam. As with the above, different fields m
 ```javascript
 {
   "affects_gpa": true, 
-  "course_id": 10788, 
+  "course_id": "10788", 
   "course_num": "MA3300", 
   "credits": 1.0, 
   "credits_earned": 1.0, 
   "gpa_points": 3.0, 
   "grade_level": 10, 
-  "id": 207044, 
+  "id": "207044", 
   "last_updated": "2016-06-20", 
   "last_updated_by": "Rosy Gandhi", 
   "letter_grade": "B", 
@@ -613,7 +613,7 @@ Gets information about overall grades for the duration of the class, by semester
 {
   "affects_gpa": true, 
   "comment": "Good programmer! Likes to explore.", 
-  "course_id": 10853, 
+  "course_id": "10853", 
   "course_num": "CS4500", 
   "credits": 1.0, 
   "credits_earned": 1.0, 
