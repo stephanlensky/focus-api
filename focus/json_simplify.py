@@ -54,7 +54,7 @@ def simplify_final_grades(records, type):
             s['gpa_points'] = float(field['gpa_points'])
             s['weighted_gpa_points'] = float(field['weighted_gpa_points'])
         s['teacher'] = field['teacher'].split(', ')[1] + ' ' + field['teacher'].split(', ')[0]
-        s['course_id'] = int(field['course_period_id'])
+        s['course_id'] = field['course_period_id']
         s['course_num'] = field['course_num']
         s['percent_grade'] = int(field['percent_grade'])
         s['letter_grade'] = field['grade_title']
