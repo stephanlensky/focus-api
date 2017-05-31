@@ -575,7 +575,9 @@ def parse_absences(absences):
 
                 if p.text.strip() == '':
                     continue#c['status'] = 'unset'
-                elif p.text == 'A' or p.text == '-':
+                elif p.text == '-':
+                    continue # possible inserted for periods that don't happen that day?
+                elif p.text == 'A':
                     c['status'] = 'absent'
                 elif p.text == 'E':
                     c['status'] = 'excused'
