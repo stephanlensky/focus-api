@@ -80,7 +80,7 @@ sess_id = r.cookies
 
 # change the marking period to semester two of 2015
 d = {'year': 2015, 'mp_id': 315}
-r = requests.put('http://127.0.0.1:5000/api/v3/session', json=d, cookies=sess_id
+r = requests.put('http://127.0.0.1:5000/api/v3/session', json=d, cookies=sess_id)
 
 # retrieve and print the student's courses
 r = requests.get('http://127.0.0.1:5000/api/v3/portal', cookies=sess_id)
