@@ -57,8 +57,9 @@ def simplify_final_grades(records, type):
         s['teacher'] = s['teacher'].replace(' (Teacher)', '')
         s['course_id'] = field['course_period_id']
         s['course_num'] = field['course_num']
-        s['percent_grade'] = int(field['percent_grade'])
-        s['letter_grade'] = field['grade_title']
+        if s['percent_grade']:
+            s['percent_grade'] = int(field['percent_grade'])
+            s['letter_grade'] = field['grade_title']
         if field['credits'] and field['credits_earned']:
             s['credits'] = float(field['credits'])
             s['credits_earned'] = float(field['credits_earned'])
