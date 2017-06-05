@@ -37,7 +37,7 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 Before doing anything else, make sure you have all of the dependencies installed:
 
 ```bash
-pip3 install flask requests beautifulsoup4 python-dateutil
+pip3 install flask flask-compress requests beautifulsoup4 python-dateutil
 ```
 
 Next, clone the repository and run the `app.py` to start the server. In it's default configuration, it will host itself locally on your machine at http://127.0.0.1:5000/api/v3.
@@ -64,7 +64,7 @@ urls = {
 }
 ```
 
-As you can see, all URLs are build dynamically from a given top level domain. It may be enough to simply change the TLD, but if your implementation of Focus differs slightly, the URLs in `urls` may also need to be modified. Additionally, the session timeout in `focus/session.py` may need to be changed to match your school's settings. If there are other bugs related to your specific school, please open an issue [here](https://github.com/kidcontact/focus-api/issues) and I will look into it as soon as possible.
+As you can see, all URLs are built dynamically from a given top level domain. It may be enough to simply change the TLD, but if your implementation of Focus differs slightly, the URLs in `urls` may also need to be modified. Additionally, the session timeout in `focus/session.py` may need to be changed to match your school's settings. If there are other bugs related to your specific school, please open an issue [here](https://github.com/kidcontact/focus-api/issues) and I will look into it as soon as possible.
 
 ## Client Documentation
 
