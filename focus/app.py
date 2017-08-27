@@ -5,9 +5,9 @@ from flask import Flask, jsonify, abort, request, make_response
 from flask_compress import Compress
 import requests
 import base64
-from focus import parser
-from focus.session import Session, find_session
-from focus.json_simplify import simplify_final_grades
+import parser
+from session import Session, find_session
+from json_simplify import simplify_final_grades
 from calendar import monthrange
 from datetime import date
 import hmac

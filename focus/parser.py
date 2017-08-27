@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from bs4 import Comment
 from dateutil.parser import parse
-from focus.json_simplify import simplify_referrals
+from json_simplify import simplify_referrals
 from datetime import date
 import json
 import sys
