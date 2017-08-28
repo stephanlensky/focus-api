@@ -37,7 +37,7 @@ A simple RESTful Flask server to retrieve and parse pages from the Focus for Sch
 Before doing anything else, make sure you have all of the dependencies installed:
 
 ```bash
-pip3 install flask flask-compress requests beautifulsoup4 python-dateutil
+pip3 install flask flask-compress requests beautifulsoup4 python-dateutil parse
 ```
 
 Next, clone the repository and run the `app.py` to start the server. In it's default configuration, it will host itself locally on your machine at http://127.0.0.1:5000/api/v3.
