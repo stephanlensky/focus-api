@@ -1,4 +1,4 @@
-*NOTICE: This API is no longer being updated, and as of the 2017-2018 school year has some problems with the most recent version of Focus. Future development of this API is now part of the [FocusSIS](https://github.com/kidcontact/FocusSIS) android app project.
+*NOTICE: This API is no longer being updated, and as of the 2017-2018 school year has some problems with the most recent version of Focus. Future development of this API is now part of the [FocusSIS](https://github.com/kidcontact/FocusSIS) android app project.*
 
 # Focus Student Information System API
 
